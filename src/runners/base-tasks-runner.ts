@@ -28,7 +28,17 @@ export abstract class BaseTasksRunner<T> {
   }
 
   public getRunningTask(index: number): Promise<T> {
-    return this.runningTasks[index] || Promise.reject(new Error("task not found"));
+    if (this.status === "open") {
+      return Promise.reject(new Error("Task runner is open"));
+    }
+
+    // show error if the index is out of bounds
+    if (index < 0 || index >= this.tasks.length) {
+      return Promise.reject(new Error("Index out of bounds"));
+    }
+
+    // return the task if it's already running
+    return this.runningTasks[index] || Promise.reject(new Error("Task is not running"));
   }
 
   public addTask(...tasks: Task<T>[]): number {
