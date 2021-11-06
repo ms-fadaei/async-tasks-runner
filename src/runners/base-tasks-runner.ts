@@ -27,8 +27,8 @@ export abstract class BaseTasksRunner<T> {
     this._status = status;
   }
 
-  public getRunningTask(index: number): Promise<T> | undefined {
-    return this.runningTasks[index];
+  public getRunningTask(index: number): Promise<T> {
+    return this.runningTasks[index] || Promise.reject(new Error("task not found"));
   }
 
   public addTask(...tasks: Task<T>[]): number {
