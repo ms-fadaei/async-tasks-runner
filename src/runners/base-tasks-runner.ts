@@ -33,11 +33,11 @@ export abstract class BaseTasksRunner<T> {
 
   public addTask(...tasks: Task<T>[]): number {
     // can't add tasks if the runner is closed
-    if (this.status !== "open") {
-      throw new Error("task runner is not open to add new task");
+    if (this.status === "open") {
+      return this.tasks.push(...tasks) - 1;
     }
 
-    return this.tasks.push(...tasks) - 1;
+    return -1;
   }
 
   public abstract runTasks(
