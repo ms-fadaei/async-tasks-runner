@@ -21,6 +21,15 @@ export class PipelineTasksRunner<T> extends BaseTasksRunner<T> {
     return this.tasks.push(...tasks) - 1;
   }
 
+  public remove(start: number, count = 1): PipelineTask<T>[] {
+    // can't remove tasks if the runner is closed
+    if (this.status === "open") {
+      return this.tasks.splice(start, count);
+    }
+
+    return [];
+  }
+
   public async run(firstArg: T): RunPipelineTaskResult<T> {
     // add all tasks to the running tasks list on first run
     if (this.status === "open") {

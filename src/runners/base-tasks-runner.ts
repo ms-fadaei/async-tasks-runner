@@ -36,6 +36,15 @@ export abstract class BaseTasksRunner<T> {
     return -1;
   }
 
+  public remove(start: number, count = 1): Task<T>[] {
+    // can't remove tasks if the runner is closed
+    if (this.status === "open") {
+      return this.tasks.splice(start, count);
+    }
+
+    return [];
+  }
+
   public abstract run(
     firstArg?: T,
   ): RunParallelTasksResult<T> | RunSerialTasksResult<T> | RunPipelineTaskResult<T>;
