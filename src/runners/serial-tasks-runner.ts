@@ -80,7 +80,7 @@ export class SerialTasksRunner<T> extends BaseTasksRunner<T> {
         const nextTask = taskIterator.next()
         await nextTask.value;
       } catch {
-        return Promise.reject(new Error("Task failed"));
+        return Promise.reject(new Error("Task not reached"));
       }
     }
 
