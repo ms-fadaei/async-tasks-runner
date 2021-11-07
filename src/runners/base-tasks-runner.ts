@@ -27,20 +27,6 @@ export abstract class BaseTasksRunner<T> {
     this._status = status;
   }
 
-  public getRunningTask(index: number): Promise<T> {
-    if (this.status === "open") {
-      return Promise.reject(new Error("Task runner is open"));
-    }
-
-    // show error if the index is out of bounds
-    if (index < 0 || index >= this.tasks.length) {
-      return Promise.reject(new Error("Index out of bounds"));
-    }
-
-    // return the task if it's already running
-    return this.runningTasks[index] || Promise.reject(new Error("Task is not running"));
-  }
-
   public addTask(...tasks: Task<T>[]): number {
     // can't add tasks if the runner is closed
     if (this.status === "open") {
@@ -53,4 +39,6 @@ export abstract class BaseTasksRunner<T> {
   public abstract runTasks(
     firstArg?: T,
   ): RunParallelTasksResult<T> | RunSerialTasksResult<T> | RunPipelineTaskResult<T>;
+
+  public abstract getRunningTask(index: number, firstArg?: T): Promise<T>;
 }
