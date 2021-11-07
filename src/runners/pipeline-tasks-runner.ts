@@ -14,11 +14,12 @@ export class PipelineTasksRunner<T> extends BaseTasksRunner<T> {
   }
 
   public add(...tasks: PipelineTask<T>[]): number {
-    if (this.status !== "open") {
-      throw new Error("task runner is not open to add new task");
+    // can't add tasks if the runner is closed
+    if (this.status === "open") {
+      return this.tasks.push(...tasks) - 1;
     }
 
-    return this.tasks.push(...tasks) - 1;
+    return -1;
   }
 
   public remove(start: number, count = 1): PipelineTask<T>[] {
