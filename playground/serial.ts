@@ -1,0 +1,65 @@
+/* eslint-disable no-console */
+import { SerialTasksRunner } from '../src/index'
+
+export async function runSerialTasks (...exampleTasks) {
+  // 1. run all tasks with run method
+  let serial = new SerialTasksRunner(...exampleTasks)
+  console.time('serial 1 timing')
+  const result1 = await serial.run().catch(e => new Error(e))
+  console.timeEnd('serial 1 timing')
+  console.log('serial 1 result', result1)
+
+  console.log('\n\n')
+
+  // 2. run all tasks, but just waiting for task number 3 (resolve)
+  serial = new SerialTasksRunner(...exampleTasks)
+  console.time('serial 2 timing')
+  let result3: any = serial.run().catch(e => new Error(e))
+  const result2 = await serial.get(2).catch(e => new Error(e))
+  console.timeEnd('serial 2 timing')
+  console.log('serial 2 result', result2)
+
+  console.log('\n\n')
+
+  // 3. get tasks result from pervious run
+  console.time('serial 3 timing')
+  result3 = await result3
+  console.timeEnd('serial 3 timing')
+  console.log('serial 3 result', result3)
+
+  console.log('\n\n')
+
+  // 4. run all tasks, but just waiting for task number 4 (reject)
+  serial = new SerialTasksRunner(...exampleTasks)
+  console.time('serial 4 timing')
+  let result5: any = serial.run().catch(e => new Error(e))
+  const result4 = await serial.get(3).catch(e => new Error(e))
+  console.timeEnd('serial 4 timing')
+  console.log('serial 4 result', result4)
+
+  console.log('\n\n')
+
+  // 5. get tasks result from pervious run
+  console.time('serial 5 timing')
+  result5 = await result5
+  console.timeEnd('serial 5 timing')
+  console.log('serial 5 result', result5)
+
+  console.log('\n\n')
+
+  // 6. run all tasks, but just waiting for task number 5 (reject because of task 4)
+  serial = new SerialTasksRunner(...exampleTasks)
+  console.time('serial 6 timing')
+  let result7: any = serial.run().catch(e => new Error(e))
+  const result6 = await serial.get(4).catch(e => new Error(e))
+  console.timeEnd('serial 6 timing')
+  console.log('serial 6 result', result6)
+
+  console.log('\n\n')
+
+  // 7. get tasks result from pervious run
+  console.time('serial 7 timing')
+  result7 = await result7
+  console.timeEnd('serial 7 timing')
+  console.log('serial 7 result', result7)
+}
