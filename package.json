@@ -1,0 +1,46 @@
+{
+  "name": "async-tasks-runner",
+  "version": "0.0.0",
+  "description": "async-tasks-runner",
+  "repository": "ms-fadaei/async-tasks-runner",
+  "license": "MIT",
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": {
+        "import": "./dist/index.mjs",
+        "require": "./cjs/index.cjs"
+      }
+    }
+  },
+  "main": "./cjs/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "cjs"
+  ],
+  "scripts": {
+    "build": "unbuild",
+    "prepack": "yarn build",
+    "lint": "eslint --ext .ts .",
+    "play": "jiti playground/index.ts",
+    "release": "yarn test && standard-version && git push --follow-tags && npm publish",
+    "test": "yarn build && mocha ./test/*.test.*"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@nuxtjs/eslint-config-typescript": "^7.0.2",
+    "@types/flat": "latest",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "latest",
+    "chai": "^4.3.4",
+    "eslint": "^7",
+    "jiti": "latest",
+    "mocha": "^9.1.3",
+    "standard-version": "latest",
+    "typescript": "latest",
+    "unbuild": "latest"
+  }
+}
