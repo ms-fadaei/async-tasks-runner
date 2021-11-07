@@ -59,7 +59,7 @@ export class SerialTasksRunner<T> extends BaseTasksRunner<T> {
 
   public async get(index: number): Promise<T> {
     if (this.status === "open") {
-      return Promise.reject(new Error("Task runner is open"));
+      return Promise.reject(new Error("Task runner is not yet started"));
     }
 
     // show error if the index is out of bounds
@@ -80,7 +80,7 @@ export class SerialTasksRunner<T> extends BaseTasksRunner<T> {
         const nextTask = taskIterator.next()
         await nextTask.value;
       } catch {
-        return Promise.reject(new Error("Task not reached"));
+        return Promise.reject(new Error("Task failed before reach"));
       }
     }
 

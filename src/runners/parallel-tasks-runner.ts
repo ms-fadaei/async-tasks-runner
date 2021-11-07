@@ -26,7 +26,7 @@ export class ParallelTasksRunner<T> extends BaseTasksRunner<T> {
 
   public get(index: number): Promise<T> {
     if (this.status === "open") {
-      return Promise.reject(new Error("Task runner is open"));
+      return Promise.reject(new Error("Task runner not yet started"));
     }
 
     // show error if the index is out of bounds
