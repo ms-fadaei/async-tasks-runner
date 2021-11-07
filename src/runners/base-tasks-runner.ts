@@ -45,6 +45,15 @@ export abstract class BaseTasksRunner<T> {
     return [];
   }
 
+  public reset(): this {
+    if (this.status !== "pending") {
+      this.runningTasks = [];
+      this.status = "open";
+    }
+
+    return this;
+  }
+
   public abstract run(
     firstArg?: T,
   ): RunParallelTasksResult<T> | RunSerialTasksResult<T> | RunPipelineTaskResult<T>;
