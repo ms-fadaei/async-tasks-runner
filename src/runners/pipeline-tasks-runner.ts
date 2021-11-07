@@ -13,7 +13,7 @@ export class PipelineTasksRunner<T> extends BaseTasksRunner<T> {
     this.firstArgCache = undefined;
   }
 
-  public addTask(...tasks: PipelineTask<T>[]): number {
+  public add(...tasks: PipelineTask<T>[]): number {
     if (this.status !== "open") {
       throw new Error("task runner is not open to add new task");
     }
@@ -21,7 +21,7 @@ export class PipelineTasksRunner<T> extends BaseTasksRunner<T> {
     return this.tasks.push(...tasks) - 1;
   }
 
-  public async runTasks(firstArg: T): RunPipelineTaskResult<T> {
+  public async run(firstArg: T): RunPipelineTaskResult<T> {
     // add all tasks to the running tasks list on first run
     if (this.status === "open") {
       this.firstArgCache = firstArg;
@@ -65,7 +65,7 @@ export class PipelineTasksRunner<T> extends BaseTasksRunner<T> {
     }
   }
 
-  public async getRunningTask(index: number): Promise<T> {
+  public async get(index: number): Promise<T> {
     if (this.status === "open") {
       return Promise.reject(new Error("Task runner is open"));
     }

@@ -11,7 +11,7 @@ export class ParallelTasksRunner<T> extends BaseTasksRunner<T> {
     this.tasks = tasks;
   }
 
-  public async runTasks(): RunParallelTasksResult<T> {
+  public async run(): RunParallelTasksResult<T> {
     // add all tasks to the running tasks list on first run
     if (this.status === "open") {
       this.status = "pending";
@@ -24,7 +24,7 @@ export class ParallelTasksRunner<T> extends BaseTasksRunner<T> {
     return Promise.resolve(results);
   }
 
-  public getRunningTask(index: number): Promise<T> {
+  public get(index: number): Promise<T> {
     if (this.status === "open") {
       return Promise.reject(new Error("Task runner is open"));
     }

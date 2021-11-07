@@ -27,7 +27,7 @@ export abstract class BaseTasksRunner<T> {
     this._status = status;
   }
 
-  public addTask(...tasks: Task<T>[]): number {
+  public add(...tasks: Task<T>[]): number {
     // can't add tasks if the runner is closed
     if (this.status === "open") {
       return this.tasks.push(...tasks) - 1;
@@ -36,9 +36,9 @@ export abstract class BaseTasksRunner<T> {
     return -1;
   }
 
-  public abstract runTasks(
+  public abstract run(
     firstArg?: T,
   ): RunParallelTasksResult<T> | RunSerialTasksResult<T> | RunPipelineTaskResult<T>;
 
-  public abstract getRunningTask(index: number): Promise<T>;
+  public abstract get(index: number): Promise<T>;
 }

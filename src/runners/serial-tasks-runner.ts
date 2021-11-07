@@ -11,7 +11,7 @@ export class SerialTasksRunner<T> extends BaseTasksRunner<T> {
     this.tasks = tasks;
   }
 
-  public async runTasks(): RunSerialTasksResult<T> {
+  public async run(): RunSerialTasksResult<T> {
     // add all tasks to the running tasks list on first run
     if (this.status === "open") {
       this.status = "pending";
@@ -57,7 +57,7 @@ export class SerialTasksRunner<T> extends BaseTasksRunner<T> {
     }
   }
 
-  public async getRunningTask(index: number): Promise<T> {
+  public async get(index: number): Promise<T> {
     if (this.status === "open") {
       return Promise.reject(new Error("Task runner is open"));
     }
