@@ -6,9 +6,9 @@ export type { RunParallelTasksResult } from "./types.ts";
 export class ParallelTasksRunner<T> extends BaseTasksRunner<T> {
   protected tasks: Task<T>[];
 
-  constructor() {
+  constructor(...tasks: Task<T>[]) {
     super();
-    this.tasks = [];
+    this.tasks = tasks;
   }
 
   public async runTasks(): RunParallelTasksResult<T> {

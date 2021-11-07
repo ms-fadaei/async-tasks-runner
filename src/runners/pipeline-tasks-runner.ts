@@ -6,9 +6,9 @@ export type { RunPipelineTaskResult } from "./types.ts";
 export class PipelineTasksRunner<T> extends BaseTasksRunner<T> {
   protected tasks: PipelineTask<T>[];
 
-  constructor() {
+  constructor(...tasks: PipelineTask<T>[]) {
     super();
-    this.tasks = [];
+    this.tasks = tasks;
   }
 
   public addTask(...tasks: PipelineTask<T>[]): number {

@@ -6,9 +6,9 @@ export type { RunSerialTasksResult } from "./types.ts";
 export class SerialTasksRunner<T> extends BaseTasksRunner<T> {
   protected tasks: Task<T>[];
 
-  constructor() {
+  constructor(...tasks: Task<T>[]) {
     super();
-    this.tasks = [];
+    this.tasks = tasks;
   }
 
   public async runTasks(): RunSerialTasksResult<T> {
