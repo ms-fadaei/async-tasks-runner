@@ -40,5 +40,5 @@ export abstract class BaseTasksRunner<T> {
     firstArg?: T,
   ): RunParallelTasksResult<T> | RunSerialTasksResult<T> | RunPipelineTaskResult<T>;
 
-  public abstract getRunningTask(index: number, firstArg?: T): Promise<T>;
+  public abstract getRunningTask(index: number): Promise<T>;
 }

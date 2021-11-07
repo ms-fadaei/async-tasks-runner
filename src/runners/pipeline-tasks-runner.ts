@@ -5,10 +5,12 @@ export type { RunPipelineTaskResult } from "./types.ts";
 
 export class PipelineTasksRunner<T> extends BaseTasksRunner<T> {
   protected tasks: PipelineTask<T>[];
+  private firstArgCache: T | undefined;
 
   constructor(...tasks: PipelineTask<T>[]) {
     super();
     this.tasks = tasks;
+    this.firstArgCache = undefined;
   }
 
   public addTask(...tasks: PipelineTask<T>[]): number {
@@ -22,7 +24,10 @@ export class PipelineTasksRunner<T> extends BaseTasksRunner<T> {
   public async runTasks(firstArg: T): RunPipelineTaskResult<T> {
     // add all tasks to the running tasks list on first run
     if (this.status === "open") {
+      this.firstArgCache = firstArg;
       this.status = "pending";
+    } else {
+      firstArg = this.firstArgCache as T;
     }
 
     // lastResult need as next task argument
@@ -60,7 +65,7 @@ export class PipelineTasksRunner<T> extends BaseTasksRunner<T> {
     }
   }
 
-  public async getRunningTask(index: number, firstArg: T): Promise<T> {
+  public async getRunningTask(index: number): Promise<T> {
     if (this.status === "open") {
       return Promise.reject(new Error("Task runner is open"));
     }
@@ -76,12 +81,13 @@ export class PipelineTasksRunner<T> extends BaseTasksRunner<T> {
     }
 
     // run tasks one by one until the index is reached
-    const taskIterator = this.iterateTasks(firstArg);
+    let lastResult: T = this.firstArgCache as T;
+    const taskIterator = this.iterateTasks(lastResult);
     for (let i = 0; i < index; i++) {
       try {
         // run tasks one by one
-        const nextTask = taskIterator.next()
-        await nextTask.value;
+        const nextTask = taskIterator.next(lastResult);
+        lastResult = await nextTask.value;
       } catch {
         return Promise.reject(new Error("Task not reached"));
       }
