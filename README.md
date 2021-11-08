@@ -35,7 +35,7 @@ function createTasksRunner() {
 ```
 
 ### status
-You can get status of the runner with this property. [See Status Section](#status)
+You can get status of the runner with this property. [See Status Section](#status-3)
 
 ```js
 parallelTasks.statue // load | running | fulfilled | rejected
@@ -115,7 +115,7 @@ function createTasksRunner() {
 ```
 
 ### status
-You can get status of the runner with this property. [See Status Section](#status)
+You can get status of the runner with this property. [See Status Section](#status-3)
 
 ```js
 serialTasks.statue // load | running | fulfilled | rejected
@@ -194,7 +194,7 @@ function createTasksRunner() {
 ```
 
 ### status
-You can get status of the runner with this property. [See Status Section](#status)
+You can get status of the runner with this property. [See Status Section](#status-3)
 
 ```js
 pipelineTasks.statue // load | running | fulfilled | rejected
