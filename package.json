@@ -1,25 +1,35 @@
 {
   "name": "async-tasks-runner",
   "version": "0.0.1",
-  "description": "async-tasks-runner",
+  "description": "Run tasks in parallel, serial & pipeline.",
   "repository": "ms-fadaei/async-tasks-runner",
   "license": "MIT",
+  "keywords": [
+    "async",
+    "task",
+    "parallel",
+    "serial",
+    "pipeline"
+  ],
+  "author": {
+    "name": "Mohammad Saleh Fadaei",
+    "email": "ms.fadaei1997@gmail.com",
+    "url": "https://twitter.com/ms_fadaei"
+  },
   "sideEffects": false,
   "type": "module",
   "exports": {
-    ".": {
-      "default": {
-        "import": "./dist/index.mjs",
-        "require": "./cjs/index.cjs"
-      }
-    }
+    "node": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "default": "./dist/index.mjs"
   },
-  "main": "./cjs/index.cjs",
+  "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "files": [
-    "dist",
-    "cjs"
+    "dist"
   ],
   "scripts": {
     "build": "unbuild",
