@@ -13,8 +13,8 @@ export class ParallelTasksRunner<T> extends BaseTasksRunner<T> {
 
   public async run (): RunParallelTasksResult<T> {
     // add all tasks to the running tasks list on first run
-    if (this.status === 'open') {
-      this.status = 'pending'
+    if (this.status === 'load') {
+      this.status = 'running'
       this.runningTasks = this.tasks.map(task => task())
     }
 
@@ -25,7 +25,7 @@ export class ParallelTasksRunner<T> extends BaseTasksRunner<T> {
   }
 
   public get (index: number): Promise<T> {
-    if (this.status === 'open') {
+    if (this.status === 'load') {
       return Promise.reject(new Error('Task runner not yet started'))
     }
 

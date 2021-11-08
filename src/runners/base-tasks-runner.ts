@@ -16,7 +16,7 @@ export abstract class BaseTasksRunner<T> {
 
   constructor () {
     this.runningTasks = []
-    this._status = 'open'
+    this._status = 'load'
   }
 
   public get status (): TaskRunnerStatus {
@@ -29,7 +29,7 @@ export abstract class BaseTasksRunner<T> {
 
   public add (...tasks: Task<T>[]): number {
     // can't add tasks if the runner is closed
-    if (this.status === 'open') {
+    if (this.status === 'load') {
       return this.tasks.push(...tasks) - 1
     }
 
@@ -38,7 +38,7 @@ export abstract class BaseTasksRunner<T> {
 
   public remove (start: number, count = 1): Task<T>[] {
     // can't remove tasks if the runner is closed
-    if (this.status === 'open') {
+    if (this.status === 'load') {
       return this.tasks.splice(start, count)
     }
 
@@ -46,9 +46,9 @@ export abstract class BaseTasksRunner<T> {
   }
 
   public reset (): this {
-    if (this.status !== 'pending') {
+    if (this.status !== 'running') {
       this.runningTasks = []
-      this.status = 'open'
+      this.status = 'load'
     }
 
     return this

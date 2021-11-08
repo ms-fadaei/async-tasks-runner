@@ -67,7 +67,7 @@ describe('SerialTasksRunner', () => {
     // add all tasks
     runner.add(...tasks)
 
-    expect(runner.status).to.equal('open')
+    expect(runner.status).to.equal('load')
 
     // run all tasks
     await expect(runner.run()).to.eventually.have.length(5)
@@ -89,7 +89,7 @@ describe('SerialTasksRunner', () => {
     // add all tasks
     runner.add(...tasks)
 
-    expect(runner.status).to.equal('open')
+    expect(runner.status).to.equal('load')
 
     // run all tasks
     await expect(runner.run()).to.eventually.rejected.with.length(3)
@@ -155,7 +155,7 @@ describe('SerialTasksRunner', () => {
     runner.add(...tasks)
 
     // status before run
-    expect(runner.status).to.equal('open')
+    expect(runner.status).to.equal('load')
 
     // run all tasks
     await runner.run()
@@ -167,7 +167,7 @@ describe('SerialTasksRunner', () => {
     runner.reset()
 
     // status after reset
-    expect(runner.status).to.equal('open')
+    expect(runner.status).to.equal('load')
 
     // no running task
     await expect(runner.get(1)).to.eventually.rejectedWith(Error)

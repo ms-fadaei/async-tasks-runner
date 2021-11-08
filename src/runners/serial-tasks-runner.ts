@@ -13,8 +13,8 @@ export class SerialTasksRunner<T> extends BaseTasksRunner<T> {
 
   public async run (): RunSerialTasksResult<T> {
     // add all tasks to the running tasks list on first run
-    if (this.status === 'open') {
-      this.status = 'pending'
+    if (this.status === 'load') {
+      this.status = 'running'
     }
 
     const results: PromiseSettledResult<T>[] = []
@@ -58,7 +58,7 @@ export class SerialTasksRunner<T> extends BaseTasksRunner<T> {
   }
 
   public async get (index: number): Promise<T> {
-    if (this.status === 'open') {
+    if (this.status === 'load') {
       return Promise.reject(new Error('Task runner is not yet started'))
     }
 

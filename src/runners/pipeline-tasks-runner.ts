@@ -15,7 +15,7 @@ export class PipelineTasksRunner<T> extends BaseTasksRunner<T> {
 
   public add (...tasks: PipelineTask<T>[]): number {
     // can't add tasks if the runner is closed
-    if (this.status === 'open') {
+    if (this.status === 'load') {
       return this.tasks.push(...tasks) - 1
     }
 
@@ -24,7 +24,7 @@ export class PipelineTasksRunner<T> extends BaseTasksRunner<T> {
 
   public remove (start: number, count = 1): PipelineTask<T>[] {
     // can't remove tasks if the runner is closed
-    if (this.status === 'open') {
+    if (this.status === 'load') {
       return this.tasks.splice(start, count)
     }
 
@@ -33,9 +33,9 @@ export class PipelineTasksRunner<T> extends BaseTasksRunner<T> {
 
   public async run (firstArg: T): RunPipelineTaskResult<T> {
     // add all tasks to the running tasks list on first run
-    if (this.status === 'open') {
+    if (this.status === 'load') {
       this.firstArgCache = firstArg
-      this.status = 'pending'
+      this.status = 'running'
     } else {
       firstArg = this.firstArgCache as T
     }
@@ -76,7 +76,7 @@ export class PipelineTasksRunner<T> extends BaseTasksRunner<T> {
   }
 
   public async get (index: number): Promise<T> {
-    if (this.status === 'open') {
+    if (this.status === 'load') {
       return Promise.reject(new Error('Task runner is not yet started'))
     }
 
