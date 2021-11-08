@@ -11,8 +11,8 @@ export type { Task, TaskRunnerStatus } from './types'
 
 export abstract class BaseTasksRunner<T> {
   protected abstract tasks: Task<T>[] | PipelineTask<T>[];
-  protected runningTasks: Promise<T>[];
-  private _status: TaskRunnerStatus;
+  protected runningTasks: Promise<T>[]
+  private _status: TaskRunnerStatus
 
   constructor () {
     this.runningTasks = []
