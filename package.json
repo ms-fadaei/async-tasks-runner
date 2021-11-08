@@ -26,7 +26,7 @@
     "prepack": "yarn build",
     "lint": "eslint --ext .ts .",
     "play": "jiti playground/index.ts",
-    "release": "yarn test && standard-version && git push --follow-tags && npm publish",
+    "release": "yarn test && npx standard-version && git push --follow-tags && npm publish",
     "test": "yarn build && mocha ./test/*.test.*"
   },
   "dependencies": {},
