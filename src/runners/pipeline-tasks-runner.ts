@@ -4,8 +4,8 @@ import { BaseTasksRunner } from './base-tasks-runner'
 export type { RunPipelineTaskResult } from './types'
 
 export class PipelineTasksRunner<T> extends BaseTasksRunner<T> {
-  protected tasks: PipelineTask<T>[];
-  private firstArgCache: T | undefined;
+  protected tasks: PipelineTask<T>[]
+  private firstArgCache: T | undefined
 
   constructor (...tasks: PipelineTask<T>[]) {
     super()

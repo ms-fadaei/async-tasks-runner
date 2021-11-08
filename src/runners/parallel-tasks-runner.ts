@@ -4,7 +4,7 @@ import { BaseTasksRunner } from './base-tasks-runner'
 export type { RunParallelTasksResult } from './types'
 
 export class ParallelTasksRunner<T> extends BaseTasksRunner<T> {
-  protected tasks: Task<T>[];
+  protected tasks: Task<T>[]
 
   constructor (...tasks: Task<T>[]) {
     super()

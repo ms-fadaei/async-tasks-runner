@@ -4,7 +4,7 @@ import { BaseTasksRunner } from './base-tasks-runner'
 export type { RunSerialTasksResult } from './types'
 
 export class SerialTasksRunner<T> extends BaseTasksRunner<T> {
-  protected tasks: Task<T>[];
+  protected tasks: Task<T>[]
 
   constructor (...tasks: Task<T>[]) {
     super()
