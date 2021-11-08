@@ -36,6 +36,7 @@
     "@types/mocha": "^9.0.0",
     "@types/node": "latest",
     "chai": "^4.3.4",
+    "chai-as-promised": "^7.1.1",
     "eslint": "^7",
     "jiti": "latest",
     "mocha": "^9.1.3",
