@@ -14,6 +14,9 @@ With this module you can run your tasks in 3 different ways:
 * Serial: You can run your tasks in sequence. the result is an array, like the `Promise.allSettled` result.
 * Pipeline: You can run your tasks in sequence. The result of the currently running task will be the argument of the next task.
 
+![Async Tasks Runner](https://user-images.githubusercontent.com/54557683/140878145-8c999b6a-88eb-4452-8f24-b270741a1f08.png)
+
+
 ⚠️ Attention: This package comes without any polyfills. If you want to support an older environment, please polyfills it depending on what you need.
 * ES2015 const/let
 * ES2015 Classes
@@ -21,7 +24,7 @@ With this module you can run your tasks in 3 different ways:
 * ES2015 Promise
 * ES2018 async/await
 * ES2020 Promise.allSettled (Just for the ParallelTasksRunner)
-<img width="500" alt="support" src="https://user-images.githubusercontent.com/54557683/140873841-a323fc0c-5bc1-4b65-adcd-654f572da2d1.png">
+<img width="500" alt="enviroment support" src="https://user-images.githubusercontent.com/54557683/140873841-a323fc0c-5bc1-4b65-adcd-654f572da2d1.png">
 
 ## Setup
 
