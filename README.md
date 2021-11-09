@@ -1,4 +1,13 @@
 # Async Tasks Runner
+
+[![npm version][npm-version-src]][npm-version-href]
+[![npm downloads][npm-downloads-src]][npm-downloads-href]
+[![Github Actions CI][github-actions-ci-src]][github-actions-ci-href]
+[![Codecov][codecov-src]][codecov-href]
+[![License][license-src]][license-href]
+
+> Run tasks in parallel, serial & pipeline. With this package, you can run a bunch of tasks in a more complicated and performant way.
+
 With this module you can run your tasks in 3 different ways:
 
 * Parallel: You can run your tasks in parallel. the result is an array, like the `Promise.allSettled` result.
@@ -246,3 +255,20 @@ All of the runners have 4 different status that represents of runner's status:
 2. `running`: Represent that the runner starts running the tasks and in the meantime, you can't nor add/remove tasks to/from the runner neither reset the runner.
 3. `fulfilled`: Represent that the runner did its job and now you can use the result or reset the runner to add/remove tasks to/from the runner and run them again.
 4. `rejected`: In this status, the runner did its job but with an error in the process and the whole run is rejected. Like `fulfilled` status, you can reset the runner to add/remove tasks to/from the runner and run them again.
+
+
+<!-- Badges -->
+[npm-version-src]: https://img.shields.io/npm/v/async-tasks-runner/latest.svg
+[npm-version-href]: https://npmjs.com/package/async-tasks-runner
+
+[npm-downloads-src]: https://img.shields.io/npm/dt/async-tasks-runner.svg
+[npm-downloads-href]: https://npmjs.com/package/async-tasks-runner
+
+[github-actions-ci-src]: https://github.com/ms-fadaei/async-tasks-runner/workflows/ci/badge.svg
+[github-actions-ci-href]: https://github.com/ms-fadaei/async-tasks-runner/actions?query=workflow%3Aci
+
+[codecov-src]: https://img.shields.io/codecov/c/github/ms-fadaei/async-tasks-runner.svg
+[codecov-href]: https://codecov.io/gh/ms-fadaei/async-tasks-runner
+
+[license-src]: https://img.shields.io/npm/l/async-tasks-runner.svg
+[license-href]: https://npmjs.com/package/async-tasks-runner
