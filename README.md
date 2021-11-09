@@ -349,7 +349,7 @@ Copyright (c) Mohammad Saleh Fadaei ([@ms-fadaei](https://github.com/ms-fadaei))
 [license-href]: https://npmjs.com/package/async-tasks-runner
 
 [minzip-src]: https://badgen.net/bundlephobia/minzip/async-tasks-runner
-[minzip-href]: https://bundlephobia.com/package/async-tasks-runne
+[minzip-href]: https://bundlephobia.com/package/async-tasks-runner
 
 [treeshakable-src]: https://badgen.net/bundlephobia/tree-shaking/async-tasks-runner
-[treeshakable-href]: https://bundlephobia.com/package/async-tasks-runne
+[treeshakable-href]: https://bundlephobia.com/package/async-tasks-runner
