@@ -6,15 +6,22 @@
 [![Codecov][codecov-src]][codecov-href]
 [![License][license-src]][license-href]
 
-> Run tasks in parallel, serial & pipeline. With this package, you can run a bunch of tasks in a more complicated and performant way. 
-
-**1KB GZIPPED, Side-effect free, tree shakable, and zero dependency tasks runner**
+> 1KB GZIPPED, side-effect free, tree shakable, zero dependencies, and fully typed Tasks Runner. Run your tasks in parallel, serial & pipeline in a more complicated and performant way.
 
 With this module you can run your tasks in 3 different ways:
 
 * Parallel: You can run your tasks in parallel. the result is an array, like the `Promise.allSettled` result.
 * Serial: You can run your tasks in sequence. the result is an array, like the `Promise.allSettled` result.
 * Pipeline: You can run your tasks in sequence. The result of the currently running task will be the argument of the next task.
+
+⚠️ Attention: This package comes without any polyfills. If you want to support an older environment, please polyfills it depending on what you need.
+* ES2015 const/let
+* ES2015 Classes
+* ES2015 Generator Functions
+* ES2015 Promise
+* ES2018 async/await
+* ES2020 Promise.allSettled (Just for the ParallelTasksRunner)
+<img width="500" alt="support" src="https://user-images.githubusercontent.com/54557683/140873841-a323fc0c-5bc1-4b65-adcd-654f572da2d1.png">
 
 ## Setup
 
