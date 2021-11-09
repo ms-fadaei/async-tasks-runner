@@ -320,7 +320,7 @@ pipelineTasks.reset();
 2. Install dependencies using `yarn install` or `npm install`
 3. Making your changes
 4. Run the `yarn lint` command
-5. Run the` yarn test` command
+5. Run the `yarn test` command
 6. Push and make a PR
 
 ## License
