@@ -11,9 +11,9 @@
 
 With this module you can run your tasks in 3 different ways:
 
-* Parallel: You can run your tasks in parallel. the result is an array, like the `Promise.allSettled` result.
-* Serial: You can run your tasks in sequence. the result is an array, like the `Promise.allSettled` result.
-* Pipeline: You can run your tasks in sequence. The result of the currently running task will be the argument of the next task.
+* Parallel: Run your independent tasks in parallel. The result is an array, like the `Promise.allSettled` result.
+* Serial: Run your independent tasks in sequence. The result is an array, like the `Promise.allSettled` result.
+* Pipeline: Run your dependent tasks in sequence. The result of every task will be passed to the next task.
 
 ![Async Tasks Runner](https://user-images.githubusercontent.com/54557683/140879231-30adf612-9149-4a10-af9f-6af094fa9152.jpg)
 
@@ -65,10 +65,10 @@ const ParallelTasksRunner = require("async-tasks-runner").ParallelTasksRunner
 
 ### status
 All of the runners have 4 different status that represents of runner's status:
-1. `load`: You can add or remove tasks to the runner. This status actually present that the runner is not started yet!
+1. `load`: The runner is open to adding or removing tasks. This status actually present that the runner is not started yet!
 2. `running`: Represent that the runner starts running the tasks and in the meantime, you can't nor add/remove tasks to/from the runner neither reset the runner.
-3. `fulfilled`: Represent that the runner did its job and now you can use the result or reset the runner to add/remove tasks to/from the runner and run them again.
-4. `rejected`: In this status, the runner did its job but with an error in the process and the whole run is rejected. Like `fulfilled` status, you can reset the runner to add/remove tasks to/from the runner and run them again.
+3. `fulfilled`: Represent that the runner did its job and now you can get the result or reset the runner to add/remove tasks to/from the runner and run them again.
+4. `rejected`: In this status, the runner did its job but with an error in the process, and the whole run is rejected. Like `fulfilled` status, you can reset the runner to add/remove tasks to/from the runner and run them again.
 
 ## Methods
 
@@ -77,8 +77,8 @@ All of the runners have 4 different status that represents of runner's status:
 | add  | add tasks to the runner | ...tasks | number: index of last addaed tasks |
 | remove | remove tasks from the runner | start index, count | array: list of removed tasks |
 | reset | resets the runner to start over | none | this: the class instance |
-| run | starts the runner | none | array: list of removed tasks |
-| get | get promise of the task by index | index of the task | promise: promise of the task |
+| run | starts the process | none | array: list of removed tasks |
+| get | get the promise of the running/fulfilled/rejected task by index | index of the task | promise: promise of the task |
 
 ## Examples
 
@@ -86,14 +86,14 @@ All of the runners have 4 different status that represents of runner's status:
 You can run your tasks in parallel. the result is an array, like the `Promise.allSettled` result.
 
 #### create instance
-You can pass tasks to the constructor.
+You can pass tasks to the constructor directly.
 
 ```js
 import {ParallelTasksRunner} from "async-tasks-runner"
 const parallelTasks = new ParallelTasksRunner(...tasks);
 ```
 
-Every task in the `ParallelTasksRunner` must be a function without a parameter that returns a promise.
+Every task in the `ParallelTasksRunner` must be a function without a parameter and return a promise.
 
 ```js
 function createTasksRunner() {
@@ -112,21 +112,21 @@ function createTasksRunner() {
 ```
 
 #### status
-You can get status of the runner with this property. [See Status Section](#status)
+Returns status of the runner. [See Status Section](#status)
 
 ```js
 parallelTasks.statue // load | running | fulfilled | rejected
 ```
 
 #### add task(s)
-You can add tasks to the runner only when its status is `load`. This method returns the index of the last added task in the tasks list.
+Add tasks to the runner. This method adds tasks to the runner when its status is `load`. This method returns the index of the last added task in the tasks list.
 
 ```js
 parallelTasks.add(task1, task2, ...tasks)
 ```
 
 #### remove task(s)
-You can remove tasks from the runner only when it's status is `load`. this method returns the list of removed tasks.
+Remove tasks from the runner. This method removes tasks from the runner when its status is `load`. this method returns the list of removed tasks.
 
 ```js
 // remove 3 tasks, started from index 2
@@ -136,7 +136,7 @@ parallelTasks.remove(startIndex, count)
 ```
 
 #### run tasks
-With this method, you can start running the tasks. When it is called for the first time, the status changed to `running` and when it is done, the status changed to `fulfilled`. If you run it again, it's not starting to run again and fulfilled with the previous result unless you reset the runner. This means you can start the runner then do some heavy work and call it again to get the result without getting the process blocked! This method always returns a promise that resolves an array of completed tasks like [Promise.allSettled]() format.
+Start running the runner. When it is called for the first time, the status changed to `running` and when it is done, the status changed to `fulfilled`. If you run it again, it's not starting to run again and fulfilled with the previous result unless you reset the runner. This means you can start the runner then do some heavy work and call it again to get the result without getting the process blocked! This method returns a promise that resolves after all of the given promises have either been fulfilled or rejected, with an array of objects that each describes the outcome of each promise.
 
 ```js
 const result = await parallelTasks.run();
@@ -150,14 +150,14 @@ const result = await parallelTasks.run();
 ```
 
 #### get specific running task
-After calling the `run` method (no matter of status is `running` or `fulfilled`), you can access a specific task with this method. The only parameter of this method is an index of the task. This method returns a promise.
+After calling the `run` method (no matter of status is `running` or `fulfilled` or `rejected`), you can access a specific task with this method. The only parameter of this method is the index of the task. This method returns a Promise that resolves with the task result or is rejected with the current or previous task rejection.
 
 ```js
 const result = await parallelTasks.get(0);
 ```
 
 #### reset the runner
-When the running process is done (`fulfilled` or `rejected`), you can reset the runner to add or remove tasks or run it again.
+Reset the runner when the running process is done (`fulfilled` or `rejected`). you can reset the runner to add or remove tasks or run it again.
 
 ```js
 parallelTasks.reset();
@@ -167,14 +167,14 @@ parallelTasks.reset();
 You can run your tasks in sequence. the result is an array, like the `Promise.allSettled` result.
 
 #### create instance
-You can pass tasks to the constructor.
+You can pass tasks to the constructor directly.
 
 ```js
 import {SerialTasksRunner} from "async-tasks-runner"
 const serialTasks = new SerialTasksRunner(...tasks);
 ```
 
-Every task in the `SerialTasksRunner` must be a function without a parameter that returns a promise.
+Every task in the `SerialTasksRunner` must be a function without a parameter and return a promise.
 
 ```js
 function createTasksRunner() {
@@ -193,21 +193,21 @@ function createTasksRunner() {
 ```
 
 #### status
-You can get status of the runner with this property. [See Status Section](#status)
+Returns status of the runner. [See Status Section](#status)
 
 ```js
 serialTasks.statue // load | running | fulfilled | rejected
 ```
 
 #### add task(s)
-You can add tasks to the runner only when its status is `load`. This method returns the index of the last added task in the tasks list.
+Add tasks to the runner. This method adds tasks to the runner when its status is `load`. This method returns the index of the last added task in the tasks list.
 
 ```js
 serialTasks.add(task1, task2, ...tasks)
 ```
 
 #### remove task(s)
-You can remove tasks from the runner only when it's status is `load`. this method returns the list of removed tasks.
+Remove tasks from the runner. This method removes tasks from the runner when its status is `load`. this method returns the list of removed tasks.
 
 ```js
 // remove 3 tasks, started from index 2
@@ -217,7 +217,7 @@ serialTasks.remove(startIndex, count)
 ```
 
 #### run tasks
-With this method, you can start running the tasks. When it is called for the first time, the status changed to `running` and when it is done, the status changed to `fulfilled` if all tasks run successfully or `rejected` if one of the tasks in the list get failed (and the next tasks don't get run). If you run it again, it's not starting to run again and `fulfilled` or `rejected` with the previous result unless you reset the runner. This means you can start the runner then do some heavy work and call it again to get the result without getting the process blocked! This method always returns a promise that resolves or rejects an array of completed tasks like [Promise.allSettled]() format.
+Start running the runner. When it is called for the first time, the status changed to `running` and when it is done, the status changed to `fulfilled` if all tasks run successfully or `rejected` if one of the tasks gets failed. If you run it again, it's not starting to run again and `fulfilled` or `rejected` with the previous result unless you reset the runner. This means you can start the runner then do some heavy work and call it again to get the result without getting the process blocked! This method always returns a promise that resolves with the final task result or rejects with an error on the process. The `run` method in the `PipelineTaskRunner` needs an argument as the initial argument of the first task.
 
 ```js
 const result = await serialTasks.run();
@@ -230,14 +230,14 @@ const result = await serialTasks.run();
 ```
 
 #### get specific running task
-After calling the `run` method (no matter of status is `running` or `fulfilled` or `rejected`), you can access a specific task with this method. The only parameter of this method is an index of the task. This method returns a Promise that resolves with the task result or is rejected with the current or previous task failure error.
+After calling the `run` method (no matter of status is `running` or `fulfilled` or `rejected`), you can access a specific task with this method. The only parameter of this method is the index of the task. This method returns a Promise that resolves with the task result or is rejected with the current or previous task rejection.
 
 ```js
 const result = await serialTasks.get(0);
 ```
 
 #### reset the runner
-When the running process is done (`fulfilled` or `rejected`), you can reset the runner to add or remove tasks or run it again.
+Reset the runner when the running process is done (`fulfilled` or `rejected`). you can reset the runner to add or remove tasks or run it again.
 
 ```js
 serialTasks.reset();
@@ -247,7 +247,7 @@ serialTasks.reset();
 You can run your tasks in sequence. The result of the currently running task will be the argument of the next task.
 
 #### create instance
-You can pass tasks to the constructor.
+You can pass tasks to the constructor directly.
 
 ```js
 import {PipelineTasksRunner} from "async-tasks-runner"
@@ -273,21 +273,21 @@ function createTasksRunner() {
 ```
 
 #### status
-You can get status of the runner with this property. [See Status Section](#status)
+Returns status of the runner. [See Status Section](#status)
 
 ```js
 pipelineTasks.statue // load | running | fulfilled | rejected
 ```
 
 #### add task(s)
-You can add tasks to the runner only when its status is `load`. This method returns the index of the last added task in the tasks list.
+Add tasks to the runner. This method adds tasks to the runner when its status is `load`. This method returns the index of the last added task in the tasks list.
 
 ```js
 pipelineTasks.add(task1, task2, ...tasks)
 ```
 
 #### remove task(s)
-You can remove tasks from the runner only when it's status is `load`. this method returns the list of removed tasks.
+Remove tasks from the runner. This method removes tasks from the runner when its status is `load`. this method returns the list of removed tasks.
 
 ```js
 // remove 3 tasks, started from index 2
@@ -313,7 +313,7 @@ const result = await pipelineTasks.get(0);
 ```
 
 #### reset the runner
-When the running process is done (`fulfilled` or `rejected`), you can reset the runner to add or remove tasks or run it again.
+Reset the runner when the running process is done (`fulfilled` or `rejected`). you can reset the runner to add or remove tasks or run it again.
 
 ```js
 pipelineTasks.reset();
