@@ -46,7 +46,7 @@ npm install async-tasks-runner
 import {ParallelTasksRunner, SerialTasksRunner, PipelineTasksRunner} from "async-tasks-runner"
 
 // CJS
-const ParallelTasksRunner = require("async-tasks-runner").ParallelTasksRunner
+const {ParallelTasksRunner} = require("async-tasks-runner")
 ```
 
 ## Classes
