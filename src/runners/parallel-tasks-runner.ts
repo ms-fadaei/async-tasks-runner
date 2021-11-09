@@ -11,17 +11,18 @@ export class ParallelTasksRunner<T> extends BaseTasksRunner<T> {
     this.tasks = tasks
   }
 
-  public async run (): RunParallelTasksResult<T> {
+  public run (): RunParallelTasksResult<T> {
     // add all tasks to the running tasks list on first run
     if (this.status === 'load') {
       this.status = 'running'
       this.runningTasks = this.tasks.map(task => task())
     }
 
-    const results = await Promise.allSettled(this.runningTasks)
-    this.status = 'fulfilled'
-
-    return Promise.resolve(results)
+    return Promise.allSettled(this.runningTasks)
+      .then((results) => {
+        this.status = 'fulfilled'
+        return results
+      })
   }
 
   public get (index: number): Promise<T> {
