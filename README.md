@@ -2,10 +2,12 @@
 
 [![npm version][npm-version-src]][npm-version-href]
 [![npm downloads][npm-downloads-src]][npm-downloads-href]
+[![minzip][minzip-src]][minzip-href]
+[![treeshakable][treeshakable-src]][treeshakable-href]
 [![Github Actions CI][github-actions-ci-src]][github-actions-ci-href]
 [![License][license-src]][license-href]
 
-> 1KB GZIPPED, side-effect free, tree shakable, zero dependencies, and fully typed Tasks Runner. Run your tasks in parallel, serial & pipeline in a more complicated and performant way.
+> Super tiny (< 1kb gzipped), side-effect free, tree shakable, zero dependencies, and fully typed Tasks Runner. Run your tasks in parallel, serial & pipeline in a more complicated and performant way.
 
 With this module you can run your tasks in 3 different ways:
 
@@ -345,3 +347,9 @@ Copyright (c) Mohammad Saleh Fadaei ([@ms-fadaei](https://github.com/ms-fadaei))
 
 [license-src]: https://img.shields.io/npm/l/async-tasks-runner.svg
 [license-href]: https://npmjs.com/package/async-tasks-runner
+
+[minzip-src]: https://badgen.net/bundlephobia/minzip/async-tasks-runner
+[minzip-href]: https://bundlephobia.com/package/async-tasks-runne
+
+[treeshakable-src]: https://badgen.net/bundlephobia/tree-shaking/async-tasks-runner
+[treeshakable-href]: https://bundlephobia.com/package/async-tasks-runne
