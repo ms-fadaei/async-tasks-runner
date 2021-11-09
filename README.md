@@ -3,7 +3,6 @@
 [![npm version][npm-version-src]][npm-version-href]
 [![npm downloads][npm-downloads-src]][npm-downloads-href]
 [![Github Actions CI][github-actions-ci-src]][github-actions-ci-href]
-[![Codecov][codecov-src]][codecov-href]
 [![License][license-src]][license-href]
 
 > 1KB GZIPPED, side-effect free, tree shakable, zero dependencies, and fully typed Tasks Runner. Run your tasks in parallel, serial & pipeline in a more complicated and performant way.
@@ -34,7 +33,7 @@ With this module you can run your tasks in 3 different ways:
 ```bash
 yarn add async-tasks-runner
 
-# or 
+# or
 
 npm install async-tasks-runner
 ```
@@ -343,9 +342,6 @@ Copyright (c) Mohammad Saleh Fadaei ([@ms-fadaei](https://github.com/ms-fadaei))
 
 [github-actions-ci-src]: https://github.com/ms-fadaei/async-tasks-runner/workflows/ci/badge.svg
 [github-actions-ci-href]: https://github.com/ms-fadaei/async-tasks-runner/actions?query=workflow%3Aci
-
-[codecov-src]: https://img.shields.io/codecov/c/github/ms-fadaei/async-tasks-runner.svg
-[codecov-href]: https://codecov.io/gh/ms-fadaei/async-tasks-runner
 
 [license-src]: https://img.shields.io/npm/l/async-tasks-runner.svg
 [license-href]: https://npmjs.com/package/async-tasks-runner
