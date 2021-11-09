@@ -22,7 +22,7 @@ With this module you can run your tasks in 3 different ways:
 * ES2015 Classes
 * ES2015 Generator Functions
 * ES2015 Promise
-* ES2018 async/await
+* ES2017 async/await
 * ES2020 Promise.allSettled (Just for the ParallelTasksRunner)
 <img width="460" alt="enviroment support" src="https://user-images.githubusercontent.com/54557683/140879289-456a341b-d272-45e8-8a6d-7d6b4ba83bf6.jpg">
 
