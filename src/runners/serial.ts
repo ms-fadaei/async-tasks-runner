@@ -3,7 +3,7 @@ import { Task, SerialTasksRunner, RunSerialTasksResult } from './types'
 export function createSerialTasksRunner (...tasks: Task[]): SerialTasksRunner {
   const _tasks = tasks
   const _pendingTasks:Promise<unknown>[] = []
-  const _status = 'load'
+  const _status = 'standby'
 
   return {
     tasks: _tasks,
@@ -14,7 +14,7 @@ export function createSerialTasksRunner (...tasks: Task[]): SerialTasksRunner {
 
 export async function runSerialTasks (taskRunner: SerialTasksRunner): RunSerialTasksResult {
   // add all tasks to the pending tasks list on first run
-  if (taskRunner.status === 'load') {
+  if (taskRunner.status === 'standby') {
     taskRunner.status = 'pending'
   }
 
@@ -59,7 +59,7 @@ function* iterateTasks (taskRunner: SerialTasksRunner): Generator<Promise<unknow
 }
 
 export async function getSerialTask (taskRunner: SerialTasksRunner, index: number): Promise<unknown> {
-  if (taskRunner.status === 'load') {
+  if (taskRunner.status === 'standby') {
     return Promise.reject(new Error('Task runner is not yet started'))
   }
 

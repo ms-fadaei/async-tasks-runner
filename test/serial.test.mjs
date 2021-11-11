@@ -74,7 +74,7 @@ describe('SerialTasksRunner', () => {
     // add all tasks
     addTask(runner, ...tasks)
 
-    expect(runner.status).to.equal('load')
+    expect(runner.status).to.equal('standby')
 
     // run all tasks
     await expect(runSerialTasks(runner)).to.eventually.have.length(5)
@@ -96,7 +96,7 @@ describe('SerialTasksRunner', () => {
     // add all tasks
     addTask(runner, ...tasks)
 
-    expect(runner.status).to.equal('load')
+    expect(runner.status).to.equal('standby')
 
     // run all tasks
     await expect(runSerialTasks(runner)).to.eventually.rejected.with.length(3)
@@ -162,7 +162,7 @@ describe('SerialTasksRunner', () => {
     addTask(runner, ...tasks)
 
     // status before run
-    expect(runner.status).to.equal('load')
+    expect(runner.status).to.equal('standby')
 
     // run all tasks
     await runSerialTasks(runner)
@@ -174,7 +174,7 @@ describe('SerialTasksRunner', () => {
     resetTasksRunner(runner)
 
     // status after reset
-    expect(runner.status).to.equal('load')
+    expect(runner.status).to.equal('standby')
 
     // no pending task
     await expect(getSerialTask(runner, 1)).to.eventually.rejectedWith(Error)

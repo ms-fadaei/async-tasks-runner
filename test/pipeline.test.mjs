@@ -74,7 +74,7 @@ describe('PipelineTasksRunner', () => {
     // add all tasks
     addTask(runner, ...tasks)
 
-    expect(runner.status).to.equal('load')
+    expect(runner.status).to.equal('standby')
 
     // run all tasks
     await expect(runPipelineTasks(runner)).to.eventually.be.equal(10)
@@ -96,7 +96,7 @@ describe('PipelineTasksRunner', () => {
     // add all tasks
     addTask(runner, ...tasks)
 
-    expect(runner.status).to.equal('load')
+    expect(runner.status).to.equal('standby')
 
     // run all tasks
     await expect(runPipelineTasks(runner)).to.eventually.rejected.to.equal(6)
@@ -162,7 +162,7 @@ describe('PipelineTasksRunner', () => {
     addTask(runner, ...tasks)
 
     // status before run
-    expect(runner.status).to.equal('load')
+    expect(runner.status).to.equal('standby')
 
     // run all tasks
     await runPipelineTasks(runner)
@@ -174,7 +174,7 @@ describe('PipelineTasksRunner', () => {
     resetTasksRunner(runner)
 
     // status after reset
-    expect(runner.status).to.equal('load')
+    expect(runner.status).to.equal('standby')
 
     // no pending task
     await expect(getPipelineTask(runner, 1)).to.eventually.rejectedWith(Error)

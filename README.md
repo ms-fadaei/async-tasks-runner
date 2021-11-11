@@ -65,7 +65,7 @@ const {ParallelTasksRunner} = require("async-tasks-runner")
 
 ### status
 All of the runners have 4 different status that represents of runner's status:
-1. `load`: The runner is open to adding or removing tasks. This status actually present that the runner is not started yet!
+1. `standby`: The runner is open to adding or removing tasks. This status actually present that the runner is not started yet!
 2. `pending`: Represent that the runner starts pending the tasks and in the meantime, you can't nor add/remove tasks to/from the runner neither reset the runner.
 3. `fulfilled`: Represent that the runner did its job and now you can get the result or reset the runner to add/remove tasks to/from the runner and run them again.
 4. `rejected`: In this status, the runner did its job but with an error in the process, and the whole run is rejected. Like `fulfilled` status, you can reset the runner to add/remove tasks to/from the runner and run them again.
@@ -115,18 +115,18 @@ function createTasksRunner() {
 Returns status of the runner. [See Status Section](#status)
 
 ```js
-parallelTasks.statue // load | pending | fulfilled | rejected
+parallelTasks.statue // standby | pending | fulfilled | rejected
 ```
 
 #### add task(s)
-Add tasks to the runner. This method adds tasks to the runner when its status is `load`. This method returns the index of the last added task in the tasks list.
+Add tasks to the runner. This method adds tasks to the runner when its status is `standby`. This method returns the index of the last added task in the tasks list.
 
 ```js
 parallelTasks.add(task1, task2, ...tasks)
 ```
 
 #### remove task(s)
-Remove tasks from the runner. This method removes tasks from the runner when its status is `load`. this method returns the list of removed tasks.
+Remove tasks from the runner. This method removes tasks from the runner when its status is `standby`. this method returns the list of removed tasks.
 
 ```js
 // remove 3 tasks, started from index 2
@@ -196,18 +196,18 @@ function createTasksRunner() {
 Returns status of the runner. [See Status Section](#status)
 
 ```js
-serialTasks.statue // load | pending | fulfilled | rejected
+serialTasks.statue // standby | pending | fulfilled | rejected
 ```
 
 #### add task(s)
-Add tasks to the runner. This method adds tasks to the runner when its status is `load`. This method returns the index of the last added task in the tasks list.
+Add tasks to the runner. This method adds tasks to the runner when its status is `standby`. This method returns the index of the last added task in the tasks list.
 
 ```js
 serialTasks.add(task1, task2, ...tasks)
 ```
 
 #### remove task(s)
-Remove tasks from the runner. This method removes tasks from the runner when its status is `load`. this method returns the list of removed tasks.
+Remove tasks from the runner. This method removes tasks from the runner when its status is `standby`. this method returns the list of removed tasks.
 
 ```js
 // remove 3 tasks, started from index 2
@@ -276,18 +276,18 @@ function createTasksRunner() {
 Returns status of the runner. [See Status Section](#status)
 
 ```js
-pipelineTasks.statue // load | pending | fulfilled | rejected
+pipelineTasks.statue // standby | pending | fulfilled | rejected
 ```
 
 #### add task(s)
-Add tasks to the runner. This method adds tasks to the runner when its status is `load`. This method returns the index of the last added task in the tasks list.
+Add tasks to the runner. This method adds tasks to the runner when its status is `standby`. This method returns the index of the last added task in the tasks list.
 
 ```js
 pipelineTasks.add(task1, task2, ...tasks)
 ```
 
 #### remove task(s)
-Remove tasks from the runner. This method removes tasks from the runner when its status is `load`. this method returns the list of removed tasks.
+Remove tasks from the runner. This method removes tasks from the runner when its status is `standby`. this method returns the list of removed tasks.
 
 ```js
 // remove 3 tasks, started from index 2

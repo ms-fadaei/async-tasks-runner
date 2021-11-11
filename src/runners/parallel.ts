@@ -3,7 +3,7 @@ import { Task, ParallelTasksRunner, RunParallelTasksResult } from './types'
 export function createParallelTasksRunner (...tasks: Task[]): ParallelTasksRunner {
   const _tasks = tasks
   const _pendingTasks:Promise<unknown>[] = []
-  const _status = 'load'
+  const _status = 'standby'
 
   return {
     tasks: _tasks,
@@ -14,7 +14,7 @@ export function createParallelTasksRunner (...tasks: Task[]): ParallelTasksRunne
 
 export function runParallelTasks (taskRunner: ParallelTasksRunner): RunParallelTasksResult {
   // add all tasks to the pending tasks list on first run
-  if (taskRunner.status === 'load') {
+  if (taskRunner.status === 'standby') {
     taskRunner.status = 'pending'
     taskRunner.pendingTasks = taskRunner.tasks.map(task => task())
   }
@@ -27,7 +27,7 @@ export function runParallelTasks (taskRunner: ParallelTasksRunner): RunParallelT
 }
 
 export function getParallelTask (taskRunner: ParallelTasksRunner, index: number): Promise<unknown> {
-  if (taskRunner.status === 'load') {
+  if (taskRunner.status === 'standby') {
     return Promise.reject(new Error('Task runner not yet started'))
   }
 

@@ -3,7 +3,7 @@ import { PipelineTask, PipelineTasksRunner, RunPipelineTasksResult } from './typ
 export function createPipelineTasksRunner<T> (...tasks: PipelineTask<T>[]): PipelineTasksRunner<T> {
   const _tasks = tasks
   const _pendingTasks: Promise<T>[] = []
-  const _status = 'load'
+  const _status = 'standby'
   const _runnerFirstArgCache: T | undefined = undefined
 
   return {
@@ -16,7 +16,7 @@ export function createPipelineTasksRunner<T> (...tasks: PipelineTask<T>[]): Pipe
 
 export async function runPipelineTasks<T> (taskRunner: PipelineTasksRunner<T>, firstArg: T): RunPipelineTasksResult<T> {
   // add all tasks to the pending tasks list on first run
-  if (taskRunner.status === 'load') {
+  if (taskRunner.status === 'standby') {
     taskRunner.runnerFirstArgCache = firstArg
     taskRunner.status = 'pending'
   } else {
@@ -59,7 +59,7 @@ function* iterateTasks<T> (taskRunner: PipelineTasksRunner<T>, firstArg: T): Gen
 }
 
 export async function getPipelineTask<T> (taskRunner: PipelineTasksRunner<T>, index: number): Promise<T> {
-  if (taskRunner.status === 'load') {
+  if (taskRunner.status === 'standby') {
     return Promise.reject(new Error('Task runner is not yet started'))
   }
 

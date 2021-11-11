@@ -74,7 +74,7 @@ describe('ParallelTasksRunner', () => {
     // add all tasks
     addTask(runner, ...tasks)
 
-    expect(runner.status).to.equal('load')
+    expect(runner.status).to.equal('standby')
 
     // run all tasks
     await expect(runParallelTasks(runner)).to.eventually.have.length(5)
@@ -140,7 +140,7 @@ describe('ParallelTasksRunner', () => {
     addTask(runner, ...tasks)
 
     // status before run
-    expect(runner.status).to.equal('load')
+    expect(runner.status).to.equal('standby')
 
     // run all tasks
     await runParallelTasks(runner)
@@ -152,7 +152,7 @@ describe('ParallelTasksRunner', () => {
     resetTasksRunner(runner)
 
     // status after reset
-    expect(runner.status).to.equal('load')
+    expect(runner.status).to.equal('standby')
 
     // no pending task
     await expect(getParallelTask(runner, 1)).to.eventually.rejectedWith(Error)

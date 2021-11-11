@@ -1,4 +1,4 @@
-export type TaskRunnerStatus = 'load' | 'pending' | 'fulfilled' | 'rejected';
+export type TaskRunnerStatus = 'standby' | 'pending' | 'fulfilled' | 'rejected';
 
 export type Task = () => Promise<unknown>;
 export type PipelineTask<T> = (perviousResult?: T) => Promise<T>;
