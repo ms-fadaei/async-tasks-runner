@@ -147,7 +147,7 @@ describe('ParallelTasksRunner', () => {
     // status after reset
     expect(runner.status).to.equal('load')
 
-    // no running task
+    // no pending task
     await expect(runner.get(1)).to.eventually.rejectedWith(Error)
   })
 

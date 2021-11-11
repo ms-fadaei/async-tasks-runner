@@ -12,9 +12,9 @@ export class SerialTasksRunner<T> extends BaseTasksRunner<T> {
   }
 
   public async run (): RunSerialTasksResult<T> {
-    // add all tasks to the running tasks list on first run
+    // add all tasks to the pending tasks list on first run
     if (this.status === 'load') {
-      this.status = 'running'
+      this.status = 'pending'
     }
 
     const results: PromiseSettledResult<T>[] = []
@@ -30,7 +30,7 @@ export class SerialTasksRunner<T> extends BaseTasksRunner<T> {
           value: result
         })
       } catch (error) {
-        // if task failed, the runner stops running tasks
+        // if task failed, the runner stops pending tasks
         this.status = 'rejected'
         results.push({
           status: 'rejected',
@@ -48,12 +48,12 @@ export class SerialTasksRunner<T> extends BaseTasksRunner<T> {
 
   private * iterateTasks (): Generator<Promise<T>> {
     for (let i = 0; i < this.tasks.length; i++) {
-      // start running the task if it's not already running
-      if (!(i in this.runningTasks)) {
-        this.runningTasks.push(this.tasks[i]())
+      // start pending the task if it's not already pending
+      if (!(i in this.pendingTasks)) {
+        this.pendingTasks.push(this.tasks[i]())
       }
 
-      yield this.runningTasks[i]
+      yield this.pendingTasks[i]
     }
   }
 
@@ -67,9 +67,9 @@ export class SerialTasksRunner<T> extends BaseTasksRunner<T> {
       return Promise.reject(new Error('Index out of bounds'))
     }
 
-    // return the task if it's already running
-    if (index in this.runningTasks) {
-      return this.runningTasks[index]
+    // return the task if it's already pending
+    if (index in this.pendingTasks) {
+      return this.pendingTasks[index]
     }
 
     // run tasks one by one until the index is reached

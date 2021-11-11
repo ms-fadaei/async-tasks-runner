@@ -32,10 +32,10 @@ export class PipelineTasksRunner<T> extends BaseTasksRunner<T> {
   }
 
   public async run (firstArg: T): RunPipelineTaskResult<T> {
-    // add all tasks to the running tasks list on first run
+    // add all tasks to the pending tasks list on first run
     if (this.status === 'load') {
       this.firstArgCache = firstArg
-      this.status = 'running'
+      this.status = 'pending'
     } else {
       firstArg = this.firstArgCache as T
     }
@@ -50,7 +50,7 @@ export class PipelineTasksRunner<T> extends BaseTasksRunner<T> {
         // run tasks one by one
         lastResult = await nextTask.value
       } catch (error) {
-        // if task failed, the runner stops running tasks
+        // if task failed, the runner stops pending tasks
         this.status = 'rejected'
         return Promise.reject(error)
       }
@@ -66,12 +66,12 @@ export class PipelineTasksRunner<T> extends BaseTasksRunner<T> {
     // lastResult need as next task argument
     let lastResult: T = firstArg
     for (let i = 0; i < this.tasks.length; i++) {
-      // start running the task if it's not already running
-      if (!(i in this.runningTasks)) {
-        this.runningTasks.push(this.tasks[i](lastResult))
+      // start pending the task if it's not already pending
+      if (!(i in this.pendingTasks)) {
+        this.pendingTasks.push(this.tasks[i](lastResult))
       }
 
-      lastResult = (yield this.runningTasks[i]) as unknown as T
+      lastResult = (yield this.pendingTasks[i]) as unknown as T
     }
   }
 
@@ -85,9 +85,9 @@ export class PipelineTasksRunner<T> extends BaseTasksRunner<T> {
       return Promise.reject(new Error('Index out of bounds'))
     }
 
-    // return the task if it's already running
-    if (index in this.runningTasks) {
-      return this.runningTasks[index]
+    // return the task if it's already pending
+    if (index in this.pendingTasks) {
+      return this.pendingTasks[index]
     }
 
     // run tasks one by one until the index is reached

@@ -12,13 +12,13 @@ export class ParallelTasksRunner<T> extends BaseTasksRunner<T> {
   }
 
   public run (): RunParallelTasksResult<T> {
-    // add all tasks to the running tasks list on first run
+    // add all tasks to the pending tasks list on first run
     if (this.status === 'load') {
-      this.status = 'running'
-      this.runningTasks = this.tasks.map(task => task())
+      this.status = 'pending'
+      this.pendingTasks = this.tasks.map(task => task())
     }
 
-    return Promise.allSettled(this.runningTasks)
+    return Promise.allSettled(this.pendingTasks)
       .then((results) => {
         this.status = 'fulfilled'
         return results
@@ -35,8 +35,8 @@ export class ParallelTasksRunner<T> extends BaseTasksRunner<T> {
       return Promise.reject(new Error('Index out of bounds'))
     }
 
-    // return the task if it's already running
-    // because of parallel pattern, we sure there is running task here
-    return this.runningTasks[index]
+    // return the task if it's already pending
+    // because of parallel pattern, we sure there is pending task here
+    return this.pendingTasks[index]
   }
 }

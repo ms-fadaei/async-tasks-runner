@@ -11,11 +11,11 @@ export type { Task, TaskRunnerStatus } from './types'
 
 export abstract class BaseTasksRunner<T> {
   protected abstract tasks: Task<T>[] | PipelineTask<T>[];
-  protected runningTasks: Promise<T>[]
+  protected pendingTasks: Promise<T>[]
   private _status: TaskRunnerStatus
 
   constructor () {
-    this.runningTasks = []
+    this.pendingTasks = []
     this._status = 'load'
   }
 
@@ -46,8 +46,8 @@ export abstract class BaseTasksRunner<T> {
   }
 
   public reset (): this {
-    if (this.status !== 'running') {
-      this.runningTasks = []
+    if (this.status !== 'pending') {
+      this.pendingTasks = []
       this.status = 'load'
     }
 
