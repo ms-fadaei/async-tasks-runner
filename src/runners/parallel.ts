@@ -1,14 +1,10 @@
 import { Task, ParallelTasksRunner, RunParallelTasksResult } from './types'
 
 export function createParallelTasksRunner<T> (...tasks: Task<T>[]): ParallelTasksRunner<T> {
-  const _tasks = tasks
-  const _pendingTasks:Promise<T>[] = []
-  const _status = 'standby'
-
   return {
-    tasks: _tasks,
-    pendingTasks: _pendingTasks,
-    status: _status
+    tasks,
+    pendingTasks: [],
+    status: 'standby'
   }
 }
 

@@ -1,16 +1,11 @@
 import { PipelineTask, PipelineTasksRunner, RunPipelineTasksResult } from './types'
 
 export function createPipelineTasksRunner<T> (...tasks: PipelineTask<T>[]): PipelineTasksRunner<T> {
-  const _tasks = tasks
-  const _pendingTasks: Promise<T>[] = []
-  const _status = 'standby'
-  const _runnerFirstArgCache: T | undefined = undefined
-
   return {
-    tasks: _tasks,
-    pendingTasks: _pendingTasks,
-    status: _status,
-    runnerFirstArgCache: _runnerFirstArgCache
+    tasks,
+    pendingTasks: [],
+    status: 'standby',
+    runnerFirstArgCache: undefined
   }
 }
 

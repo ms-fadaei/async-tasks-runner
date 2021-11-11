@@ -1,14 +1,10 @@
 import { Task, SerialTasksRunner, RunSerialTasksResult } from './types'
 
 export function createSerialTasksRunner<T> (...tasks: Task<T>[]): SerialTasksRunner<T> {
-  const _tasks = tasks
-  const _pendingTasks:Promise<T>[] = []
-  const _status = 'standby'
-
   return {
-    tasks: _tasks,
-    pendingTasks: _pendingTasks,
-    status: _status
+    tasks,
+    pendingTasks: [],
+    status: 'standby'
   }
 }
 
