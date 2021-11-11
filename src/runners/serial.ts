@@ -1,8 +1,8 @@
 import { Task, SerialTasksRunner, RunSerialTasksResult } from './types'
 
-export function createSerialTasksRunner (...tasks: Task[]): SerialTasksRunner {
+export function createSerialTasksRunner<T> (...tasks: Task<T>[]): SerialTasksRunner<T> {
   const _tasks = tasks
-  const _pendingTasks:Promise<unknown>[] = []
+  const _pendingTasks:Promise<T>[] = []
   const _status = 'standby'
 
   return {
@@ -12,14 +12,14 @@ export function createSerialTasksRunner (...tasks: Task[]): SerialTasksRunner {
   }
 }
 
-export async function runSerialTasks (taskRunner: SerialTasksRunner): RunSerialTasksResult {
+export async function runSerialTasks<T> (taskRunner: SerialTasksRunner<T>): RunSerialTasksResult<T> {
   // add all tasks to the pending tasks list on first run
   if (taskRunner.status === 'standby') {
     taskRunner.status = 'pending'
   }
 
-  const results: PromiseSettledResult<unknown>[] = []
-  const taskIterator = iterateTasks(taskRunner)
+  const results: PromiseSettledResult<T>[] = []
+  const taskIterator = iterateTasks<T>(taskRunner)
 
   let nextTask = taskIterator.next()
   while (!nextTask.done) {
@@ -47,7 +47,7 @@ export async function runSerialTasks (taskRunner: SerialTasksRunner): RunSerialT
   return Promise.resolve(results)
 }
 
-function* iterateTasks (taskRunner: SerialTasksRunner): Generator<Promise<unknown>> {
+function* iterateTasks<T> (taskRunner: SerialTasksRunner<T>): Generator<Promise<T>> {
   for (let i = 0; i < taskRunner.tasks.length; i++) {
     // start pending the task if it's not already pending
     if (!(i in taskRunner.pendingTasks)) {
@@ -58,7 +58,7 @@ function* iterateTasks (taskRunner: SerialTasksRunner): Generator<Promise<unknow
   }
 }
 
-export async function getSerialTask (taskRunner: SerialTasksRunner, index: number): Promise<unknown> {
+export async function getSerialTask<T> (taskRunner: SerialTasksRunner<T>, index: number): Promise<unknown> {
   if (taskRunner.status === 'standby') {
     return Promise.reject(new Error('Task runner is not yet started'))
   }
