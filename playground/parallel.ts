@@ -1,21 +1,21 @@
 /* eslint-disable no-console */
-import { ParallelTasksRunner } from '../src/index'
+import { createParallelTasksRunner, runParallelTasks, getParallelTask } from '../src/index'
 
-export async function runParallelTasks (...exampleTasks) {
+export async function _runParallelTasks (...exampleTasks) {
   // 1. run all tasks with run method
-  let parallel = new ParallelTasksRunner(...exampleTasks)
+  let parallel = createParallelTasksRunner(...exampleTasks)
   console.time('parallel 1 timing')
-  const result1 = await parallel.run()
+  const result1 = await runParallelTasks(parallel)
   console.timeEnd('parallel 1 timing')
   console.log('parallel 1 result', result1)
 
   console.log('\n\n')
 
   // 2. run all tasks, but just waiting for task number 3 (resolve)
-  parallel = new ParallelTasksRunner(...exampleTasks)
+  parallel = createParallelTasksRunner(...exampleTasks)
   console.time('parallel 2 timing')
-  let result3: any = parallel.run()
-  const result2 = await parallel.get(2)
+  let result3: any = runParallelTasks(parallel)
+  const result2 = await getParallelTask(parallel, 2)
   console.timeEnd('parallel 2 timing')
   console.log('parallel 2 result', result2)
 
@@ -30,10 +30,10 @@ export async function runParallelTasks (...exampleTasks) {
   console.log('\n\n')
 
   // 4. run all tasks, but just waiting for task number 4 (reject)
-  parallel = new ParallelTasksRunner(...exampleTasks)
+  parallel = createParallelTasksRunner(...exampleTasks)
   console.time('parallel 4 timing')
-  let result5: any = parallel.run()
-  const result4 = await parallel.get(3).catch(e => new Error(e))
+  let result5: any = runParallelTasks(parallel)
+  const result4 = await await getParallelTask(parallel, 3).catch(e => new Error(e))
   console.timeEnd('parallel 4 timing')
   console.log('parallel 4 result', result4)
 
@@ -48,10 +48,10 @@ export async function runParallelTasks (...exampleTasks) {
   console.log('\n\n')
 
   // 6. run all tasks, but just waiting for task number 5 (resolve)
-  parallel = new ParallelTasksRunner(...exampleTasks)
+  parallel = createParallelTasksRunner(...exampleTasks)
   console.time('parallel 6 timing')
-  let result7: any = parallel.run()
-  const result6 = await parallel.get(4)
+  let result7: any = runParallelTasks(parallel)
+  const result6 = await await getParallelTask(parallel, 4)
   console.timeEnd('parallel 6 timing')
   console.log('parallel 6 result', result6)
 

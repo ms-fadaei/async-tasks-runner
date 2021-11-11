@@ -1,21 +1,21 @@
 /* eslint-disable no-console */
-import { PipelineTasksRunner } from '../src/index'
+import { createPipelineTasksRunner, runPipelineTasks, getPipelineTask } from '../src/index'
 
-export async function runPipelineTasks (...exampleTasks) {
+export async function _runPipelineTasks (...exampleTasks) {
   // 1. run all tasks with run method
-  let pipeline = new PipelineTasksRunner(...exampleTasks)
+  let pipeline = createPipelineTasksRunner(...exampleTasks)
   console.time('pipeline 1 timing')
-  const result1 = await pipeline.run(0).catch(e => new Error(e))
+  const result1 = await runPipelineTasks(pipeline, 0).catch(e => new Error(e))
   console.timeEnd('pipeline 1 timing')
   console.log('pipeline 1 result', result1)
 
   console.log('\n\n')
 
   // 2. run all tasks, but just waiting for task number 3 (resolve)
-  pipeline = new PipelineTasksRunner(...exampleTasks)
+  pipeline = createPipelineTasksRunner(...exampleTasks)
   console.time('pipeline 2 timing')
-  let result3: any = pipeline.run(0).catch(e => new Error(e))
-  const result2 = await pipeline.get(2).catch(e => new Error(e))
+  let result3: any = runPipelineTasks(pipeline, 0).catch(e => new Error(e))
+  const result2 = await getPipelineTask(pipeline, 2).catch(e => new Error(e))
   console.timeEnd('pipeline 2 timing')
   console.log('pipeline 2 result', result2)
 
@@ -30,10 +30,10 @@ export async function runPipelineTasks (...exampleTasks) {
   console.log('\n\n')
 
   // 4. run all tasks, but just waiting for task number 4 (reject)
-  pipeline = new PipelineTasksRunner(...exampleTasks)
+  pipeline = createPipelineTasksRunner(...exampleTasks)
   console.time('pipeline 4 timing')
-  let result5: any = pipeline.run(0).catch(e => new Error(e))
-  const result4 = await pipeline.get(3).catch(e => new Error(e))
+  let result5: any = runPipelineTasks(pipeline, 0).catch(e => new Error(e))
+  const result4 = await getPipelineTask(pipeline, 3).catch(e => new Error(e))
   console.timeEnd('pipeline 4 timing')
   console.log('pipeline 4 result', result4)
 
@@ -48,10 +48,10 @@ export async function runPipelineTasks (...exampleTasks) {
   console.log('\n\n')
 
   // 6. run all tasks, but just waiting for task number 5 (reject because of task 4)
-  pipeline = new PipelineTasksRunner(...exampleTasks)
+  pipeline = createPipelineTasksRunner(...exampleTasks)
   console.time('pipeline 6 timing')
-  let result7: any = pipeline.run(0).catch(e => new Error(e))
-  const result6 = await pipeline.get(4).catch(e => new Error(e))
+  let result7: any = runPipelineTasks(pipeline, 0).catch(e => new Error(e))
+  const result6 = await getPipelineTask(pipeline, 4).catch(e => new Error(e))
   console.timeEnd('pipeline 6 timing')
   console.log('pipeline 6 result', result6)
 

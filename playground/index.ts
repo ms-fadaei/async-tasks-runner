@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
-import { runParallelTasks } from './parallel'
-import { runSerialTasks } from './serial'
-import { runPipelineTasks } from './pipeline'
+import { _runParallelTasks } from './parallel'
+import { _runSerialTasks } from './serial'
+import { _runPipelineTasks } from './pipeline'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function rejectFn1 (response: unknown, delay: number): Promise<number> {
@@ -23,11 +23,11 @@ function resolveFn1 (response: unknown, delay: number): Promise<number> {
   ]
 
   console.log('Parallel Tasks:\n')
-  await runParallelTasks(...exampleTasks)
+  await _runParallelTasks(...exampleTasks)
 
   console.log('\n\n\nSerial Tasks:\n')
-  await runSerialTasks(...exampleTasks)
+  await _runSerialTasks(...exampleTasks)
 
   console.log('\n\n\nPipeline Tasks:\n')
-  await runPipelineTasks(...exampleTasks)
+  await _runPipelineTasks(...exampleTasks)
 })())
