@@ -9,10 +9,10 @@ export function addTask<T> (taskRunner: TasksRunner<T>, ...tasks: Task<T>[]): nu
   return -1
 }
 
-export function removeTask<T> (taskRunner: TasksRunner<T>, start: number, count: number): Task<T>[] {
+export function removeTask<T> (taskRunner: TasksRunner<T>, start: number, count: number, ...tasks: Task<T>[]): Task<T>[] {
   // can't remove tasks if the runner is closed
   if (taskRunner.status === 'standby') {
-    return taskRunner.tasks.splice(start, count)
+    return taskRunner.tasks.splice(start, count, ...tasks)
   }
 
   return []
