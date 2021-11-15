@@ -1,4 +1,4 @@
-import { Task, NormalTask, PipelineTask } from './runners/types'
+import { Task, ParallelTask, SerialTask, PipelineTask } from './runners/types'
 
 export const timeoutResult: Symbol = Symbol('timeout')
 
@@ -16,7 +16,8 @@ export function createTimeoutReject<T> (timeout: number, error: T): Promise<T> {
 }
 
 /* eslint-disable no-redeclare */
-export function createTaskWithTimeout<T> (task: NormalTask<T>, timeout: number): NormalTask<T>;
+export function createTaskWithTimeout<T> (task: ParallelTask<T>, timeout: number): ParallelTask<T>;
+export function createTaskWithTimeout<T> (task: SerialTask<T>, timeout: number): SerialTask<T>;
 export function createTaskWithTimeout<T> (task: PipelineTask<T>, timeout: number): PipelineTask<T>;
 export function createTaskWithTimeout<T> (task: Task<T>, timeout: number): Task<T> {
   return (arg: T) => Promise.race([task(arg), createTimeoutReject(timeout, timeoutResult)]) as Promise<T>
