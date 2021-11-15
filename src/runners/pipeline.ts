@@ -53,7 +53,7 @@ function* iterateTasks<T> (taskRunner: PipelineTasksRunner<T>, firstArg: T): Gen
   }
 }
 
-export async function getPipelineTask<T> (taskRunner: PipelineTasksRunner<T>, index: number): Promise<T> {
+export async function getPipelineTasks<T> (taskRunner: PipelineTasksRunner<T>, index: number): Promise<T> {
   if (taskRunner.status === 'standby') {
     return Promise.reject(new Error('Task runner is not yet started'))
   }

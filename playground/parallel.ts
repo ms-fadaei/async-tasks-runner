@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { createParallelTasksRunner, runParallelTasks, getParallelTask } from '../src/index'
+import { createParallelTasksRunner, runParallelTasks, getParallelTasks } from '../src/index'
 
 export async function _runParallelTasks (...exampleTasks) {
   // 1. run all tasks with run method
@@ -15,7 +15,7 @@ export async function _runParallelTasks (...exampleTasks) {
   parallel = createParallelTasksRunner(...exampleTasks)
   console.time('parallel 2 timing')
   let result3: any = runParallelTasks(parallel)
-  const result2 = await getParallelTask(parallel, 2)
+  const result2 = await getParallelTasks(parallel, 2)
   console.timeEnd('parallel 2 timing')
   console.log('parallel 2 result', result2)
 
@@ -33,7 +33,7 @@ export async function _runParallelTasks (...exampleTasks) {
   parallel = createParallelTasksRunner(...exampleTasks)
   console.time('parallel 4 timing')
   let result5: any = runParallelTasks(parallel)
-  const result4 = await await getParallelTask(parallel, 3).catch(e => new Error(e))
+  const result4 = await await getParallelTasks(parallel, 3).catch(e => new Error(e))
   console.timeEnd('parallel 4 timing')
   console.log('parallel 4 result', result4)
 
@@ -51,7 +51,7 @@ export async function _runParallelTasks (...exampleTasks) {
   parallel = createParallelTasksRunner(...exampleTasks)
   console.time('parallel 6 timing')
   let result7: any = runParallelTasks(parallel)
-  const result6 = await await getParallelTask(parallel, 4)
+  const result6 = await await getParallelTasks(parallel, 4)
   console.timeEnd('parallel 6 timing')
   console.log('parallel 6 result', result6)
 

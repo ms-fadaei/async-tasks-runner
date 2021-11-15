@@ -4,10 +4,10 @@ import chaiAsPromised from 'chai-as-promised'
 import {
   createPipelineTasksRunner,
   runPipelineTasks,
-  getPipelineTask,
-  addTask,
-  removeTask,
-  resetTasksRunner
+  getPipelineTasks,
+  pushTasks,
+  spliceTasks,
+  resetTasks
 } from '../dist/index.mjs'
 
 use(chaiAsPromised)
@@ -27,16 +27,16 @@ describe('PipelineTasksRunner', () => {
 
     // add first task
     const firstTask = resolveFn.bind(null, 10, 10)
-    expect(addTask(runner, firstTask)).to.equal(0)
+    expect(pushTasks(runner, firstTask)).to.equal(0)
 
     // add second and third task in same call
     const secondTask = resolveFn.bind(null, 20, 20)
     const thirdTask = rejectFn.bind(null, 30, 30)
-    expect(addTask(runner, secondTask, thirdTask)).to.equal(2)
+    expect(pushTasks(runner, secondTask, thirdTask)).to.equal(2)
 
     // add forth task in separate call
     const forthTask = resolveFn.bind(null, 40, 40)
-    expect(addTask(runner, forthTask)).to.equal(3)
+    expect(pushTasks(runner, forthTask)).to.equal(3)
   })
 
   it('remove tasks', () => {
@@ -50,14 +50,14 @@ describe('PipelineTasksRunner', () => {
       resolveFn.bind(null, 8, 8),
       resolveFn.bind(null, 10, 10)
     ]
-    expect(addTask(runner, ...tasks)).to.equal(4)
+    expect(pushTasks(runner, ...tasks)).to.equal(4)
 
     // remove task number 2 and 3
-    expect(removeTask(runner, 1, 2)).to.have.length(2)
+    expect(spliceTasks(runner, 1, 2)).to.have.length(2)
 
     // add new task
     const newTask = resolveFn.bind(null, 12, 12)
-    expect(addTask(runner, newTask)).to.equal(3)
+    expect(pushTasks(runner, newTask)).to.equal(3)
   })
 
   it('run tasks (with success)', async () => {
@@ -72,7 +72,7 @@ describe('PipelineTasksRunner', () => {
     ]
 
     // add all tasks
-    addTask(runner, ...tasks)
+    pushTasks(runner, ...tasks)
 
     expect(runner.status).to.equal('standby')
 
@@ -94,7 +94,7 @@ describe('PipelineTasksRunner', () => {
     ]
 
     // add all tasks
-    addTask(runner, ...tasks)
+    pushTasks(runner, ...tasks)
 
     expect(runner.status).to.equal('standby')
 
@@ -116,14 +116,14 @@ describe('PipelineTasksRunner', () => {
     ]
 
     // add all tasks
-    addTask(runner, ...tasks)
+    pushTasks(runner, ...tasks)
 
     // run all tasks
     await runPipelineTasks(runner).catch(e => e)
 
     // add new task
     const newTask = resolveFn.bind(null, 1, 1)
-    expect(addTask(runner, newTask)).to.equal(-1)
+    expect(pushTasks(runner, newTask)).to.equal(-1)
   })
 
   it('unable to remove tasks after run', async () => {
@@ -138,13 +138,13 @@ describe('PipelineTasksRunner', () => {
     ]
 
     // add all tasks
-    addTask(runner, ...tasks)
+    pushTasks(runner, ...tasks)
 
     // run all tasks
     await runPipelineTasks(runner)
 
     // add new task
-    expect(removeTask(runner, 1, 2)).to.have.length(0)
+    expect(spliceTasks(runner, 1, 2)).to.have.length(0)
   })
 
   it('reset after run', async () => {
@@ -159,7 +159,7 @@ describe('PipelineTasksRunner', () => {
     ]
 
     // add all tasks
-    addTask(runner, ...tasks)
+    pushTasks(runner, ...tasks)
 
     // status before run
     expect(runner.status).to.equal('standby')
@@ -171,13 +171,13 @@ describe('PipelineTasksRunner', () => {
     expect(runner.status).to.equal('fulfilled')
 
     // reset runner
-    resetTasksRunner(runner)
+    resetTasks(runner)
 
     // status after reset
     expect(runner.status).to.equal('standby')
 
     // no pending task
-    await expect(getPipelineTask(runner, 1)).to.eventually.rejectedWith(Error)
+    await expect(getPipelineTasks(runner, 1)).to.eventually.rejectedWith(Error)
   })
 
   it('add task after run and reset', async () => {
@@ -192,20 +192,20 @@ describe('PipelineTasksRunner', () => {
     ]
 
     // add all tasks
-    addTask(runner, ...tasks)
+    pushTasks(runner, ...tasks)
 
     // run all tasks
     await runPipelineTasks(runner)
 
     // add new task
     const newTask = resolveFn.bind(null, 1, 1)
-    expect(addTask(runner, newTask)).to.equal(-1)
+    expect(pushTasks(runner, newTask)).to.equal(-1)
 
     // reset runner
-    resetTasksRunner(runner)
+    resetTasks(runner)
 
     // add new task (sixth task)
-    expect(addTask(runner, newTask)).to.equal(5)
+    expect(pushTasks(runner, newTask)).to.equal(5)
   })
 
   it('get specific task after run (with success)', async () => {
@@ -220,25 +220,25 @@ describe('PipelineTasksRunner', () => {
     ]
 
     // add all tasks
-    addTask(runner, ...tasks)
+    pushTasks(runner, ...tasks)
 
     // run all tasks
     await runPipelineTasks(runner)
 
     // get first task
-    await expect(getPipelineTask(runner, 0)).to.eventually.equal(2)
+    await expect(getPipelineTasks(runner, 0)).to.eventually.equal(2)
 
     // get second task
-    await expect(getPipelineTask(runner, 1)).to.eventually.equal(4)
+    await expect(getPipelineTasks(runner, 1)).to.eventually.equal(4)
 
     // get third task
-    await expect(getPipelineTask(runner, 2)).to.eventually.equal(6)
+    await expect(getPipelineTasks(runner, 2)).to.eventually.equal(6)
 
     // get forth task
-    await expect(getPipelineTask(runner, 3)).to.eventually.equal(8)
+    await expect(getPipelineTasks(runner, 3)).to.eventually.equal(8)
 
     // get fifth task
-    await expect(getPipelineTask(runner, 4)).to.eventually.equal(10)
+    await expect(getPipelineTasks(runner, 4)).to.eventually.equal(10)
   })
 
   it('get specific task after run (contain error)', async () => {
@@ -253,24 +253,24 @@ describe('PipelineTasksRunner', () => {
     ]
 
     // add all tasks
-    addTask(runner, ...tasks)
+    pushTasks(runner, ...tasks)
 
     // run all tasks with error
     await runPipelineTasks(runner).catch(e => e)
 
     // get first task
-    await expect(getPipelineTask(runner, 0)).to.eventually.equal(2)
+    await expect(getPipelineTasks(runner, 0)).to.eventually.equal(2)
 
     // get second task
-    await expect(getPipelineTask(runner, 1)).to.eventually.equal(4)
+    await expect(getPipelineTasks(runner, 1)).to.eventually.equal(4)
 
     // get third task
-    await expect(getPipelineTask(runner, 2)).to.eventually.rejectedWith(6)
+    await expect(getPipelineTasks(runner, 2)).to.eventually.rejectedWith(6)
 
     // get forth task
-    await expect(getPipelineTask(runner, 3)).to.eventually.rejectedWith(Error)
+    await expect(getPipelineTasks(runner, 3)).to.eventually.rejectedWith(Error)
 
     // get fifth task
-    await expect(getPipelineTask(runner, 4)).to.eventually.rejectedWith(Error)
+    await expect(getPipelineTasks(runner, 4)).to.eventually.rejectedWith(Error)
   })
 })

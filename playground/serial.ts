@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { createSerialTasksRunner, runSerialTasks, getSerialTask } from '../src/index'
+import { createSerialTasksRunner, runSerialTasks, getSerialTasks } from '../src/index'
 
 export async function _runSerialTasks (...exampleTasks) {
   // 1. run all tasks with run method
@@ -15,7 +15,7 @@ export async function _runSerialTasks (...exampleTasks) {
   serial = createSerialTasksRunner(...exampleTasks)
   console.time('serial 2 timing')
   let result3: any = runSerialTasks(serial).catch(e => new Error(e))
-  const result2 = await getSerialTask(serial, 2).catch(e => new Error(e))
+  const result2 = await getSerialTasks(serial, 2).catch(e => new Error(e))
   console.timeEnd('serial 2 timing')
   console.log('serial 2 result', result2)
 
@@ -33,7 +33,7 @@ export async function _runSerialTasks (...exampleTasks) {
   serial = createSerialTasksRunner(...exampleTasks)
   console.time('serial 4 timing')
   let result5: any = runSerialTasks(serial).catch(e => new Error(e))
-  const result4 = await getSerialTask(serial, 3).catch(e => new Error(e))
+  const result4 = await getSerialTasks(serial, 3).catch(e => new Error(e))
   console.timeEnd('serial 4 timing')
   console.log('serial 4 result', result4)
 
@@ -51,7 +51,7 @@ export async function _runSerialTasks (...exampleTasks) {
   serial = createSerialTasksRunner(...exampleTasks)
   console.time('serial 6 timing')
   let result7: any = runSerialTasks(serial).catch(e => new Error(e))
-  const result6 = await getSerialTask(serial, 4).catch(e => new Error(e))
+  const result6 = await getSerialTasks(serial, 4).catch(e => new Error(e))
   console.timeEnd('serial 6 timing')
   console.log('serial 6 result', result6)
 

@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { createPipelineTasksRunner, runPipelineTasks, getPipelineTask } from '../src/index'
+import { createPipelineTasksRunner, runPipelineTasks, getPipelineTasks } from '../src/index'
 
 export async function _runPipelineTasks (...exampleTasks) {
   // 1. run all tasks with run method
@@ -15,7 +15,7 @@ export async function _runPipelineTasks (...exampleTasks) {
   pipeline = createPipelineTasksRunner(...exampleTasks)
   console.time('pipeline 2 timing')
   let result3: any = runPipelineTasks(pipeline, 0).catch(e => new Error(e))
-  const result2 = await getPipelineTask(pipeline, 2).catch(e => new Error(e))
+  const result2 = await getPipelineTasks(pipeline, 2).catch(e => new Error(e))
   console.timeEnd('pipeline 2 timing')
   console.log('pipeline 2 result', result2)
 
@@ -33,7 +33,7 @@ export async function _runPipelineTasks (...exampleTasks) {
   pipeline = createPipelineTasksRunner(...exampleTasks)
   console.time('pipeline 4 timing')
   let result5: any = runPipelineTasks(pipeline, 0).catch(e => new Error(e))
-  const result4 = await getPipelineTask(pipeline, 3).catch(e => new Error(e))
+  const result4 = await getPipelineTasks(pipeline, 3).catch(e => new Error(e))
   console.timeEnd('pipeline 4 timing')
   console.log('pipeline 4 result', result4)
 
@@ -51,7 +51,7 @@ export async function _runPipelineTasks (...exampleTasks) {
   pipeline = createPipelineTasksRunner(...exampleTasks)
   console.time('pipeline 6 timing')
   let result7: any = runPipelineTasks(pipeline, 0).catch(e => new Error(e))
-  const result6 = await getPipelineTask(pipeline, 4).catch(e => new Error(e))
+  const result6 = await getPipelineTasks(pipeline, 4).catch(e => new Error(e))
   console.timeEnd('pipeline 6 timing')
   console.log('pipeline 6 result', result6)
 

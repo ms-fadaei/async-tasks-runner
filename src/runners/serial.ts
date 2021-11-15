@@ -54,7 +54,7 @@ function* iterateTasks<T> (taskRunner: SerialTasksRunner<T>): Generator<Promise<
   }
 }
 
-export async function getSerialTask<T> (taskRunner: SerialTasksRunner<T>, index: number): Promise<unknown> {
+export async function getSerialTasks<T> (taskRunner: SerialTasksRunner<T>, index: number): Promise<unknown> {
   if (taskRunner.status === 'standby') {
     return Promise.reject(new Error('Task runner is not yet started'))
   }
