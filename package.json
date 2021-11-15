@@ -19,11 +19,14 @@
   "sideEffects": false,
   "type": "module",
   "exports": {
-    "node": {
+    ".": {
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
     },
-    "default": "./dist/index.mjs"
+    "./helpers": {
+      "import": "./dist/helpers.mjs",
+      "require": "./dist/helpers.cjs"
+    }
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
