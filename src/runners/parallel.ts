@@ -22,7 +22,7 @@ export function runParallelTasks<T> (taskRunner: ParallelTasksRunner<T>): RunPar
     })
 }
 
-export function getParallelTasks<T> (taskRunner: ParallelTasksRunner<T>, index: number): Promise<unknown> {
+export function getParallelTasks<T> (taskRunner: ParallelTasksRunner<T>, index: number): Promise<T> {
   if (taskRunner.status === 'standby') {
     return Promise.reject(new Error('Task runner not yet started'))
   }
