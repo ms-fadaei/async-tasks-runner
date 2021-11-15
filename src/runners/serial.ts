@@ -1,6 +1,6 @@
-import { Task, SerialTasksRunner, RunSerialTasksResult } from './types'
+import { NormalTask, SerialTasksRunner, RunSerialTasksResult } from './types'
 
-export function createSerialTasksRunner<T> (...tasks: Task<T>[]): SerialTasksRunner<T> {
+export function createSerialTasksRunner<T> (...tasks: NormalTask<T>[]): SerialTasksRunner<T> {
   return {
     tasks,
     pendingTasks: [],

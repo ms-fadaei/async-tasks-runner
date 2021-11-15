@@ -1,6 +1,6 @@
-import { Task, ParallelTasksRunner, RunParallelTasksResult } from './types'
+import { NormalTask, ParallelTasksRunner, RunParallelTasksResult } from './types'
 
-export function createParallelTasksRunner<T> (...tasks: Task<T>[]): ParallelTasksRunner<T> {
+export function createParallelTasksRunner<T> (...tasks: NormalTask<T>[]): ParallelTasksRunner<T> {
   return {
     tasks,
     pendingTasks: [],
