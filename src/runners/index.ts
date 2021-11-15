@@ -1,27 +1,20 @@
 import { Task, TasksRunner } from './types'
 
 export function pushTasks<T> (taskRunner: TasksRunner<T>, ...tasks: Task<T>[]): number {
-  // can't add tasks if the runner is closed
-  if (taskRunner.status === 'standby') {
-    return taskRunner.tasks.push(...tasks) - 1
-  }
-
-  return -1
+  // https://mdn.io/JavaScript/Reference/Global_Objects/Array/push
+  return taskRunner.tasks.push(...tasks) - 1
 }
 
-export function spliceTasks<T> (taskRunner: TasksRunner<T>, start: number, count: number, ...tasks: Task<T>[]): Task<T>[] {
-  // can't remove tasks if the runner is closed
-  if (taskRunner.status === 'standby') {
-    return taskRunner.tasks.splice(start, count, ...tasks)
+export function spliceTasks<T> (taskRunner: TasksRunner<T>, start: number, deleteCount?: number, ...tasks: Task<T>[]): Task<T>[] {
+  // https://mdn.io/JavaScript/Reference/Global_Objects/Array/splice
+  if (typeof deleteCount === 'undefined') {
+    return taskRunner.tasks.splice(start)
+  } else {
+    return taskRunner.tasks.splice(start, deleteCount, ...tasks)
   }
-
-  return []
 }
 
 export function resetTasks<T> (taskRunner: TasksRunner<T>): void {
-  // can't remove tasks if the runner is closed
-  if (taskRunner.status !== 'pending') {
-    taskRunner.pendingTasks = []
-    taskRunner.status = 'standby'
-  }
+  taskRunner.pendingTasks = new WeakMap()
+  taskRunner.status = 'standby'
 }

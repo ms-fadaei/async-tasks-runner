@@ -3,24 +3,24 @@ import { PipelineTask, PipelineTasksRunner, RunPipelineTasksResult } from './typ
 export function createPipelineTasksRunner<T> (...tasks: PipelineTask<T>[]): PipelineTasksRunner<T> {
   return {
     tasks,
-    pendingTasks: [],
+    pendingTasks: new WeakMap(),
+    executeCount: 0,
     status: 'standby',
     runnerFirstArgCache: undefined
   }
 }
 
 export async function runPipelineTasks<T> (taskRunner: PipelineTasksRunner<T>, firstArg: T): RunPipelineTasksResult<T> {
-  // add all tasks to the pending tasks list on first run
-  if (taskRunner.status === 'standby') {
+  // The difference in the firstArg cause to start the runner from the beginning
+  let forceReRun = false
+  if (taskRunner.runnerFirstArgCache !== firstArg) {
     taskRunner.runnerFirstArgCache = firstArg
-    taskRunner.status = 'pending'
-  } else {
-    firstArg = taskRunner.runnerFirstArgCache as T
+    forceReRun = true
   }
 
-  // lastResult need as next task argument
+  // Iterate the tasks with serial-iterator
   let lastResult: T = firstArg
-  const taskIterator = iterateTasks<T>(taskRunner, lastResult)
+  const taskIterator = iterateTasks<T>(taskRunner, lastResult, forceReRun)
 
   let nextTask = taskIterator.next()
   while (!nextTask.done) {
@@ -28,7 +28,7 @@ export async function runPipelineTasks<T> (taskRunner: PipelineTasksRunner<T>, f
       // run tasks one by one
       lastResult = await nextTask.value
     } catch (error) {
-      // if task failed, the runner stops pending tasks
+      // If task failed, the runner stops pending tasks
       taskRunner.status = 'rejected'
       return Promise.reject(error)
     }
@@ -36,20 +36,32 @@ export async function runPipelineTasks<T> (taskRunner: PipelineTasksRunner<T>, f
     nextTask = taskIterator.next(lastResult)
   }
 
-  taskRunner.status = 'fulfilled'
   return Promise.resolve(lastResult)
 }
 
-function* iterateTasks<T> (taskRunner: PipelineTasksRunner<T>, firstArg: T): Generator<Promise<T>> {
+function* iterateTasks<T> (taskRunner: PipelineTasksRunner<T>, firstArg: T, forceReRun = false, tickCount = true): Generator<Promise<T>> {
   // lastResult need as next task argument
   let lastResult: T = firstArg
-  for (let i = 0; i < taskRunner.tasks.length; i++) {
+
+  taskRunner.status = 'pending'
+  const currentExecuteCount = tickCount && ++taskRunner.executeCount
+
+  // Creating a clone from tasks to get every run separate
+  // and keep a reference for each task until the end because of WeakMap
+  const tasksClone = [...taskRunner.tasks]
+  for (let i = 0; i < tasksClone.length; i++) {
     // start pending the task if it's not already pending
-    if (!(i in taskRunner.pendingTasks)) {
-      taskRunner.pendingTasks.push(taskRunner.tasks[i](lastResult))
+    if (!taskRunner.pendingTasks.has(tasksClone[i]) || forceReRun) {
+      forceReRun = true
+      taskRunner.pendingTasks.set(tasksClone[i], tasksClone[i](lastResult))
     }
 
-    lastResult = (yield taskRunner.pendingTasks[i]) as unknown as T
+    lastResult = (yield taskRunner.pendingTasks.get(tasksClone[i]) as Promise<T>) as unknown as T
+  }
+
+  // If this is the result of the last run, then set the state
+  if (tickCount && currentExecuteCount === taskRunner.executeCount) {
+    taskRunner.status = 'fulfilled'
   }
 }
 
@@ -63,17 +75,18 @@ export async function getPipelineTasks<T> (taskRunner: PipelineTasksRunner<T>, i
     return Promise.reject(new Error('Index out of bounds'))
   }
 
-  // return the task if it's already pending
-  if (index in taskRunner.pendingTasks) {
-    return taskRunner.pendingTasks[index]
+  // Task already executed
+  const task = taskRunner.tasks[index]
+  if (taskRunner.pendingTasks.has(task)) {
+    return taskRunner.pendingTasks.get(task) as Promise<T>
   }
 
-  // run tasks one by one until the index is reached
+  // At this point, the task is not executed yet.
+  // Running the tasks one by one until the index is reached.
   let lastResult: T = taskRunner.runnerFirstArgCache as T
-  const taskIterator = iterateTasks<T>(taskRunner, lastResult)
+  const taskIterator = iterateTasks<T>(taskRunner, lastResult, false, false)
   for (let i = 0; i < index; i++) {
     try {
-      // run tasks one by one
       const nextTask = taskIterator.next(lastResult)
       lastResult = await nextTask.value
     } catch {
