@@ -3,7 +3,7 @@ import { expect, use } from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import { createTimeoutResolve, createTimeoutReject } from '../dist/helpers.mjs'
 import {
-  createPipelineTaskRunner,
+  createPipelineTasksRunner,
   runParallelTasks,
   getParallelTasks,
   pushTasks,
@@ -12,9 +12,9 @@ import {
 
 use(chaiAsPromised)
 
-describe('PipelineTaskRunner', () => {
+describe('PipelineTasksRunner', () => {
   it('Running some fulfilled tasks in parallel', async () => {
-    const runner = createPipelineTaskRunner()
+    const runner = createPipelineTasksRunner()
 
     // pushing 3 tasks
     const firstTask = () => createTimeoutResolve(1, 1)
@@ -36,7 +36,7 @@ describe('PipelineTaskRunner', () => {
   })
 
   it('Running some fulfilled & rejected tasks in parallel', async () => {
-    const runner = createPipelineTaskRunner()
+    const runner = createPipelineTasksRunner()
 
     // pushing 3 tasks
     const firstTask = () => createTimeoutResolve(1, 1)
@@ -62,7 +62,7 @@ describe('PipelineTaskRunner', () => {
   })
 
   it('Running some rejected tasks in parallel', async () => {
-    const runner = createPipelineTaskRunner()
+    const runner = createPipelineTasksRunner()
 
     // pushing 3 tasks
     const firstTask = () => createTimeoutReject(1, 1)
@@ -84,7 +84,7 @@ describe('PipelineTaskRunner', () => {
   })
 
   it('Adding some tasks after first run (without waiting) & run again', async () => {
-    const runner = createPipelineTaskRunner()
+    const runner = createPipelineTasksRunner()
 
     // pushing 3 tasks
     const firstTask = () => createTimeoutResolve(1, 1)
@@ -120,7 +120,7 @@ describe('PipelineTaskRunner', () => {
   })
 
   it('Getting a specific task before running', async () => {
-    const runner = createPipelineTaskRunner()
+    const runner = createPipelineTasksRunner()
 
     // pushing 3 tasks
     const firstTask = () => createTimeoutResolve(1, 1)
@@ -132,7 +132,7 @@ describe('PipelineTaskRunner', () => {
   })
 
   it('Getting a specific task after running but out of the bound', async () => {
-    const runner = createPipelineTaskRunner()
+    const runner = createPipelineTasksRunner()
 
     // pushing 3 tasks
     const firstTask = () => createTimeoutResolve(1, 1)
@@ -144,7 +144,7 @@ describe('PipelineTaskRunner', () => {
   })
 
   it('Getting a specific task after running', async () => {
-    const runner = createPipelineTaskRunner()
+    const runner = createPipelineTasksRunner()
 
     // pushing 3 tasks
     const firstTask = () => createTimeoutResolve(1, 1)
@@ -158,7 +158,7 @@ describe('PipelineTaskRunner', () => {
   })
 
   it('Getting a specific task that added after the first run but before the second run', async () => {
-    const runner = createPipelineTaskRunner()
+    const runner = createPipelineTasksRunner()
 
     // pushing 3 tasks
     const firstTask = () => createTimeoutResolve(1, 1)
@@ -174,7 +174,7 @@ describe('PipelineTaskRunner', () => {
   })
 
   it('Getting a specific task that added after the first and the second run', async () => {
-    const runner = createPipelineTaskRunner()
+    const runner = createPipelineTasksRunner()
 
     // pushing 3 tasks
     const firstTask = () => createTimeoutResolve(1, 1)
