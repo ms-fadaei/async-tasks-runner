@@ -8,7 +8,7 @@ export type Task<T> = ParallelTask<T> | SerialTask<T> | PipelineTask<T>
 export interface TasksRunner<T> {
     tasks: Task<T>[],
     pendingTasks: WeakMap<Task<T>, Promise<T>>,
-    executeCount: 0,
+    executeCount: number,
     status: TasksRunnerStatus,
 }
 
