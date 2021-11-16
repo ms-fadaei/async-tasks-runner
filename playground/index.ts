@@ -1,27 +1,31 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-console */
-// import { _runParallelTasks } from './parallel'
-import { _runParallelTasks } from './parallel-new'
-// import { _runSerialTasks } from './serial'
-// import { _runPipelineTasks } from './pipeline'
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function rejectFn1 (response: unknown, delay: number): Promise<number> {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  return new Promise((resolve, reject) => setTimeout(reject, delay, response))
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function resolveFn1 (response: unknown, delay: number): Promise<number> {
-  return new Promise(resolve => setTimeout(resolve, delay, response))
-}
+import { createTimeoutResolve, createTimeoutReject } from '../src/helpers'
+import { Task } from '../src/index'
+import { _runParallelTasks } from './parallel'
+import { _runSerialTasks } from './serial'
+import { _runPipelineTasks } from './pipeline'
 
 ((async () => {
-  console.log('Parallel Tasks:\n')
-  await _runParallelTasks()
+  const exampleTasks: Task<number>[] = [
+    (arg = 0) => createTimeoutResolve(8, 8 + arg),
+    (arg = 0) => createTimeoutResolve(2, 2 + arg),
+    (arg = 0) => createTimeoutResolve(6, 6 + arg),
+    (arg = 0) => createTimeoutResolve(16, 16 + arg),
+    (arg = 0) => createTimeoutResolve(12, 12 + arg),
+    (arg = 0) => createTimeoutReject(4, 4 + arg),
+    (arg = 0) => createTimeoutResolve(18, 18 + arg),
+    (arg = 0) => createTimeoutResolve(14, 14 + arg),
+    (arg = 0) => createTimeoutResolve(10, 10 + arg),
+    (arg = 0) => createTimeoutReject(20, 20 + arg)
+  ]
 
-  // console.log('\n\n\nSerial Tasks:\n')
-  // await _runSerialTasks(...exampleTasks)
+  // console.log('Parallel Tasks:\n')
+  // await _runParallelTasks(...exampleTasks)
 
-  // console.log('\n\n\nPipeline Tasks:\n')
+  console.log('Serial Tasks:\n')
+  await _runSerialTasks(...exampleTasks)
+
+  // console.log('Pipeline Tasks:\n')
   // await _runPipelineTasks(...exampleTasks)
 })())
