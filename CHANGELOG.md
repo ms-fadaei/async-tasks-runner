@@ -28,9 +28,6 @@ All notable changes to this project will be documented in this file. See [standa
 
 * split `NormalTask` type ([d74c394](https://github.com/ms-fadaei/async-tasks-runner/commit/d74c39420ccfa010edd8839ae3448f7d115cd61d))
 
-
-### fractor
-
 * remove `resetTasks` function ([1892230](https://github.com/ms-fadaei/async-tasks-runner/commit/189223004167505f30cf046b6e0c42596f9eaafc))
 
 ## [1.0.0-beta.0](https://github.com/ms-fadaei/async-tasks-runner/compare/v0.0.2...v1.0.0-beta.0) (2021-11-15)
