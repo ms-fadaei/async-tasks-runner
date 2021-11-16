@@ -4,9 +4,6 @@ All notable changes to this project will be documented in this file. See [standa
 
 ## [1.0.0-beta.2](https://github.com/ms-fadaei/async-tasks-runner/compare/v1.0.0-beta.1...v1.0.0-beta.2) (2021-11-16)
 
-## [1.0.0-beta.1](https://github.com/ms-fadaei/async-tasks-runner/compare/v1.0.0-beta.0...v1.0.0-beta.1) (2021-11-16)
-
-
 ### ⚠ BREAKING CHANGES
 
 * `resetTasks` removed. you can use `runner = create*TasksRunner(...runner.tasks)` instead
@@ -15,7 +12,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Features
 
-* add heplers module ([a5da6d4](https://github.com/ms-fadaei/async-tasks-runner/commit/a5da6d41afe746846e48249e03a3af6980ea2a79))
+* add helpers module ([a5da6d4](https://github.com/ms-fadaei/async-tasks-runner/commit/a5da6d41afe746846e48249e03a3af6980ea2a79))
 * add the ability to update tasks even after run ([5eaa3f9](https://github.com/ms-fadaei/async-tasks-runner/commit/5eaa3f99d19b1f90134c9b3d43717d98a8df4e0e))
 
 
