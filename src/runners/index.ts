@@ -13,8 +13,3 @@ export function spliceTasks<T> (taskRunner: TasksRunner<T>, start: number, delet
     return taskRunner.tasks.splice(start, deleteCount, ...tasks)
   }
 }
-
-export function resetTasks<T> (taskRunner: TasksRunner<T>): void {
-  taskRunner.pendingTasks = new WeakMap()
-  taskRunner.status = 'standby'
-}
