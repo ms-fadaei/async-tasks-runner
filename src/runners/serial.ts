@@ -10,6 +10,8 @@ export function createSerialTasksRunner<T> (...tasks: SerialTask<T>[]): SerialTa
 }
 
 export async function runSerialTasks<T> (taskRunner: SerialTasksRunner<T>): RunSerialTasksResult<T> {
+  taskRunner.status = 'pending'
+  const currentExecuteCount = ++taskRunner.executeCount
   const results: PromiseSettledResult<T>[] = []
   const taskIterator = iterateTasks<T>(taskRunner)
 
@@ -24,8 +26,12 @@ export async function runSerialTasks<T> (taskRunner: SerialTasksRunner<T>): RunS
         value: result
       })
     } catch (error) {
+      // If this is the result of the last run, then set the state
+      if (currentExecuteCount === taskRunner.executeCount) {
+        taskRunner.status = 'rejected'
+      }
+
       // If task failed, the runner stops pending tasks
-      taskRunner.status = 'rejected'
       results.push({
         status: 'rejected',
         reason: error
@@ -33,16 +39,21 @@ export async function runSerialTasks<T> (taskRunner: SerialTasksRunner<T>): RunS
       return Promise.reject(results)
     }
 
+    // If this is the result of the last run, then set the state
+    if (currentExecuteCount === taskRunner.executeCount) {
+      taskRunner.status = 'fulfilled'
+    }
     nextTask = taskIterator.next()
   }
 
+  // If this is the result of the last run, then set the state
+  if (currentExecuteCount === taskRunner.executeCount) {
+    taskRunner.status = 'fulfilled'
+  }
   return Promise.resolve(results)
 }
 
-function *iterateTasks<T> (taskRunner: SerialTasksRunner<T>, tickCount = true): Generator<Promise<T>> {
-  taskRunner.status = 'pending'
-  const currentExecuteCount = tickCount && ++taskRunner.executeCount
-
+function *iterateTasks<T> (taskRunner: SerialTasksRunner<T>): Generator<Promise<T>> {
   // Creating a clone from tasks to get every run separate
   // and keep a reference for each task until the end because of WeakMap
   const tasksClone = [...taskRunner.tasks]
@@ -52,11 +63,6 @@ function *iterateTasks<T> (taskRunner: SerialTasksRunner<T>, tickCount = true): 
     }
 
     yield taskRunner.pendingTasks.get(tasksClone[i]) as Promise<T>
-  }
-
-  // If this is the result of the last run, then set the state
-  if (tickCount && currentExecuteCount === taskRunner.executeCount) {
-    taskRunner.status = 'fulfilled'
   }
 }
 
@@ -77,7 +83,7 @@ export async function getSerialTasks<T> (taskRunner: SerialTasksRunner<T>, index
 
   // At this point, the task is not executed yet.
   // Running the tasks one by one until the index is reached.
-  const taskIterator = iterateTasks(taskRunner, false)
+  const taskIterator = iterateTasks(taskRunner)
   for (let i = 0; i < index; i++) {
     try {
       const nextTask = taskIterator.next()

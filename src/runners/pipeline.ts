@@ -11,6 +11,9 @@ export function createPipelineTasksRunner<T> (...tasks: PipelineTask<T>[]): Pipe
 }
 
 export async function runPipelineTasks<T> (taskRunner: PipelineTasksRunner<T>, firstArg: T): RunPipelineTasksResult<T> {
+  taskRunner.status = 'pending'
+  const currentExecuteCount = ++taskRunner.executeCount
+
   // The difference in the firstArg cause to start the runner from the beginning
   let forceReRun = false
   if (taskRunner.runnerFirstArgCache !== firstArg) {
@@ -28,23 +31,28 @@ export async function runPipelineTasks<T> (taskRunner: PipelineTasksRunner<T>, f
       // run tasks one by one
       lastResult = await nextTask.value
     } catch (error) {
+      // If this is the result of the last run, then set the state
+      if (currentExecuteCount === taskRunner.executeCount) {
+        taskRunner.status = 'rejected'
+      }
+
       // If task failed, the runner stops pending tasks
-      taskRunner.status = 'rejected'
       return Promise.reject(error)
     }
 
     nextTask = taskIterator.next(lastResult)
   }
 
+  // If this is the result of the last run, then set the state
+  if (currentExecuteCount === taskRunner.executeCount) {
+    taskRunner.status = 'fulfilled'
+  }
   return Promise.resolve(lastResult)
 }
 
-function* iterateTasks<T> (taskRunner: PipelineTasksRunner<T>, firstArg: T, forceReRun = false, tickCount = true): Generator<Promise<T>> {
+function* iterateTasks<T> (taskRunner: PipelineTasksRunner<T>, firstArg: T, forceReRun = false): Generator<Promise<T>> {
   // lastResult need as next task argument
   let lastResult: T = firstArg
-
-  taskRunner.status = 'pending'
-  const currentExecuteCount = tickCount && ++taskRunner.executeCount
 
   // Creating a clone from tasks to get every run separate
   // and keep a reference for each task until the end because of WeakMap
@@ -57,11 +65,6 @@ function* iterateTasks<T> (taskRunner: PipelineTasksRunner<T>, firstArg: T, forc
     }
 
     lastResult = (yield taskRunner.pendingTasks.get(tasksClone[i]) as Promise<T>) as unknown as T
-  }
-
-  // If this is the result of the last run, then set the state
-  if (tickCount && currentExecuteCount === taskRunner.executeCount) {
-    taskRunner.status = 'fulfilled'
   }
 }
 
@@ -84,7 +87,7 @@ export async function getPipelineTasks<T> (taskRunner: PipelineTasksRunner<T>, i
   // At this point, the task is not executed yet.
   // Running the tasks one by one until the index is reached.
   let lastResult: T = taskRunner.runnerFirstArgCache as T
-  const taskIterator = iterateTasks<T>(taskRunner, lastResult, false, false)
+  const taskIterator = iterateTasks<T>(taskRunner, lastResult, false)
   for (let i = 0; i < index; i++) {
     try {
       const nextTask = taskIterator.next(lastResult)
