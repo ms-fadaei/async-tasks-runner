@@ -2,6 +2,38 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-beta.1](https://github.com/ms-fadaei/async-tasks-runner/compare/v1.0.0-beta.0...v1.0.0-beta.1) (2021-11-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* `resetTasks` removed. you can use `runner = create*TasksRunner(...runner.tasks)` instead
+* use `ParallelTask` & `SerialTask`type instead of `NormalTask`
+* use `NormalTask` type instead of `Task` type for `parallel` and `serial` runners
+
+### Features
+
+* add heplers module ([a5da6d4](https://github.com/ms-fadaei/async-tasks-runner/commit/a5da6d41afe746846e48249e03a3af6980ea2a79))
+* add the ability to update tasks even after run ([5eaa3f9](https://github.com/ms-fadaei/async-tasks-runner/commit/5eaa3f99d19b1f90134c9b3d43717d98a8df4e0e))
+
+
+### Bug Fixes
+
+* fix executeCount type ([d4ef5bd](https://github.com/ms-fadaei/async-tasks-runner/commit/d4ef5bde2809e60a6f78f7ee375967f0c3268fde))
+
+
+* use strict type for tasks ([845ae89](https://github.com/ms-fadaei/async-tasks-runner/commit/845ae893b8ff367ca15abf83d7fdd5eda370a05d))
+
+
+### refator
+
+* split `NormalTask` type ([d74c394](https://github.com/ms-fadaei/async-tasks-runner/commit/d74c39420ccfa010edd8839ae3448f7d115cd61d))
+
+
+### fractor
+
+* remove `resetTasks` function ([1892230](https://github.com/ms-fadaei/async-tasks-runner/commit/189223004167505f30cf046b6e0c42596f9eaafc))
+
 ## [1.0.0-beta.0](https://github.com/ms-fadaei/async-tasks-runner/compare/v0.0.2...v1.0.0-beta.0) (2021-11-15)
 
 
