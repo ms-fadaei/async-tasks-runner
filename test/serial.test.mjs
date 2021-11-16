@@ -1,276 +1,125 @@
 
 import { expect, use } from 'chai'
 import chaiAsPromised from 'chai-as-promised'
+import { createTimeoutResolve } from '../dist/helpers.mjs'
 import {
   createSerialTasksRunner,
-  runSerialTasks,
-  getSerialTasks,
   pushTasks,
-  spliceTasks,
-  resetTasks
+  spliceTasks
 } from '../dist/index.mjs'
 
 use(chaiAsPromised)
 
 describe('SerialTasksRunner', () => {
-  function rejectFn (response, delay) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    return new Promise((resolve, reject) => setTimeout(reject, delay, response))
-  }
-
-  function resolveFn (response, delay) {
-    return new Promise(resolve => setTimeout(resolve, delay, response))
-  }
-
-  it('add tasks', () => {
+  it('pushing one task to the tasks-runner', () => {
     const runner = createSerialTasksRunner()
 
-    // add first task
-    const firstTask = resolveFn.bind(null, 10, 10)
+    const firstTask = () => createTimeoutResolve(1, 1)
+    expect(pushTasks(runner, firstTask)).to.equal(0)
+  })
+
+  it('pushing three tasks at the same time to the tasks-runner', () => {
+    const runner = createSerialTasksRunner()
+
+    const firstTask = () => createTimeoutResolve(1, 1)
+    const secondTask = () => createTimeoutResolve(2, 2)
+    const thirdTask = () => createTimeoutResolve(3, 3)
+    expect(pushTasks(runner, firstTask, secondTask, thirdTask)).to.equal(2)
+  })
+
+  it('pushing empty list to the tasks-runner', () => {
+    const runner = createSerialTasksRunner()
+
+    expect(pushTasks(runner)).to.equal(-1)
+  })
+
+  it('pushing tasks in a more complicated way', () => {
+    const runner = createSerialTasksRunner()
+
+    // pushing the first task
+    const firstTask = () => createTimeoutResolve(1, 1)
     expect(pushTasks(runner, firstTask)).to.equal(0)
 
-    // add second and third task in same call
-    const secondTask = resolveFn.bind(null, 20, 20)
-    const thirdTask = rejectFn.bind(null, 30, 30)
+    // pushing the second and third tasks at the same time
+    const secondTask = () => createTimeoutResolve(2, 2)
+    const thirdTask = () => createTimeoutResolve(3, 3)
     expect(pushTasks(runner, secondTask, thirdTask)).to.equal(2)
 
     // add forth task in separate call
-    const forthTask = resolveFn.bind(null, 40, 40)
+    const forthTask = () => createTimeoutResolve(4, 4)
     expect(pushTasks(runner, forthTask)).to.equal(3)
+
+    // pushing noting must return the last item index
+    expect(pushTasks(runner)).to.equal(3)
   })
 
-  it('remove tasks', () => {
+  it('splicing tasks with just start parameter', () => {
     const runner = createSerialTasksRunner()
 
-    // add tasks
-    const tasks = [
-      resolveFn.bind(null, 2, 2),
-      resolveFn.bind(null, 4, 4),
-      rejectFn.bind(null, 6, 6),
-      resolveFn.bind(null, 8, 8),
-      resolveFn.bind(null, 10, 10)
-    ]
-    expect(pushTasks(runner, ...tasks)).to.equal(4)
+    // create tasks
+    const count = 5
+    const tasks = []
+    for (let i = 0; i < count; i++) {
+      tasks.push(() => createTimeoutResolve(i, i))
+    }
 
-    // remove task number 2 and 3
-    expect(spliceTasks(runner, 1, 2)).to.have.length(2)
-
-    // add new task
-    const newTask = resolveFn.bind(null, 12, 12)
-    expect(pushTasks(runner, newTask)).to.equal(3)
-  })
-
-  it('run tasks (with success)', async () => {
-    const runner = createSerialTasksRunner()
-
-    const tasks = [
-      resolveFn.bind(null, 2, 2),
-      resolveFn.bind(null, 4, 4),
-      resolveFn.bind(null, 6, 6),
-      resolveFn.bind(null, 8, 8),
-      resolveFn.bind(null, 10, 10)
-    ]
-
-    // add all tasks
+    // push tasks
     pushTasks(runner, ...tasks)
 
-    expect(runner.status).to.equal('standby')
+    // splice tasks
+    expect(spliceTasks(runner, 2)).to.have.length(count - 2)
 
-    // run all tasks
-    await expect(runSerialTasks(runner)).to.eventually.have.length(5)
-
-    expect(runner.status).to.equal('fulfilled')
+    // get tasks length
+    // pushing noting must return the last item index
+    expect(pushTasks(runner) + 1).to.equal(2)
   })
 
-  it('run tasks contain error', async () => {
+  it('splicing tasks with start and deleteCount parameter', () => {
     const runner = createSerialTasksRunner()
 
-    const tasks = [
-      resolveFn.bind(null, 2, 2),
-      resolveFn.bind(null, 4, 4),
-      rejectFn.bind(null, 6, 6),
-      resolveFn.bind(null, 8, 8),
-      resolveFn.bind(null, 10, 10)
-    ]
+    // create tasks
+    const count = 5
+    const tasks = []
+    for (let i = 0; i < count; i++) {
+      tasks.push(() => createTimeoutResolve(i, i))
+    }
 
-    // add all tasks
+    // push tasks
     pushTasks(runner, ...tasks)
 
-    expect(runner.status).to.equal('standby')
+    // splice tasks
+    expect(spliceTasks(runner, 2, 2)).to.have.length(2)
 
-    // run all tasks
-    await expect(runSerialTasks(runner)).to.eventually.rejected.with.length(3)
-
-    expect(runner.status).to.equal('rejected')
+    // get tasks length
+    // pushing noting must return the last item index
+    expect(pushTasks(runner) + 1).to.equal(count - 2)
   })
 
-  it('unable to add tasks after run', async () => {
+  it('splicing tasks with start and deleteCount and newTasks parameter', () => {
     const runner = createSerialTasksRunner()
 
-    const tasks = [
-      resolveFn.bind(null, 2, 2),
-      resolveFn.bind(null, 4, 4),
-      resolveFn.bind(null, 6, 6),
-      resolveFn.bind(null, 8, 8),
-      resolveFn.bind(null, 10, 10)
-    ]
+    // create tasks
+    const count = 5
+    const tasks = []
+    for (let i = 0; i < count; i++) {
+      tasks.push(() => createTimeoutResolve(i, i))
+    }
 
-    // add all tasks
+    // create new tasks
+    const newCount = 4
+    const newTasks = []
+    for (let i = 0; i < newCount; i++) {
+      newTasks.push(() => createTimeoutResolve(i, i))
+    }
+
+    // push tasks
     pushTasks(runner, ...tasks)
 
-    // run all tasks
-    await runSerialTasks(runner).catch(e => e)
+    // splice tasks
+    expect(spliceTasks(runner, 2, 2, ...newTasks)).to.have.length(2)
 
-    // add new task
-    const newTask = resolveFn.bind(null, 1, 1)
-    expect(pushTasks(runner, newTask)).to.equal(-1)
-  })
-
-  it('unable to remove tasks after run', async () => {
-    const runner = createSerialTasksRunner()
-
-    const tasks = [
-      resolveFn.bind(null, 2, 2),
-      resolveFn.bind(null, 4, 4),
-      resolveFn.bind(null, 6, 6),
-      resolveFn.bind(null, 8, 8),
-      resolveFn.bind(null, 10, 10)
-    ]
-
-    // add all tasks
-    pushTasks(runner, ...tasks)
-
-    // run all tasks
-    await runSerialTasks(runner)
-
-    // add new task
-    expect(spliceTasks(runner, 1, 2)).to.have.length(0)
-  })
-
-  it('reset after run', async () => {
-    const runner = createSerialTasksRunner()
-
-    const tasks = [
-      resolveFn.bind(null, 2, 2),
-      resolveFn.bind(null, 4, 4),
-      resolveFn.bind(null, 6, 6),
-      resolveFn.bind(null, 8, 8),
-      resolveFn.bind(null, 10, 10)
-    ]
-
-    // add all tasks
-    pushTasks(runner, ...tasks)
-
-    // status before run
-    expect(runner.status).to.equal('standby')
-
-    // run all tasks
-    await runSerialTasks(runner)
-
-    // status after run
-    expect(runner.status).to.equal('fulfilled')
-
-    // reset runner
-    resetTasks(runner)
-
-    // status after reset
-    expect(runner.status).to.equal('standby')
-
-    // no pending task
-    await expect(getSerialTasks(runner, 1)).to.eventually.rejectedWith(Error)
-  })
-
-  it('add task after run and reset', async () => {
-    const runner = createSerialTasksRunner()
-
-    const tasks = [
-      resolveFn.bind(null, 2, 2),
-      resolveFn.bind(null, 4, 4),
-      resolveFn.bind(null, 6, 6),
-      resolveFn.bind(null, 8, 8),
-      resolveFn.bind(null, 10, 10)
-    ]
-
-    // add all tasks
-    pushTasks(runner, ...tasks)
-
-    // run all tasks
-    await runSerialTasks(runner)
-
-    // add new task
-    const newTask = resolveFn.bind(null, 1, 1)
-    expect(pushTasks(runner, newTask)).to.equal(-1)
-
-    // reset runner
-    resetTasks(runner)
-
-    // add new task (sixth task)
-    expect(pushTasks(runner, newTask)).to.equal(5)
-  })
-
-  it('get specific task after run (with success)', async () => {
-    const runner = createSerialTasksRunner()
-
-    const tasks = [
-      resolveFn.bind(null, 2, 2),
-      resolveFn.bind(null, 4, 4),
-      resolveFn.bind(null, 6, 6),
-      resolveFn.bind(null, 8, 8),
-      resolveFn.bind(null, 10, 10)
-    ]
-
-    // add all tasks
-    pushTasks(runner, ...tasks)
-
-    // run all tasks
-    await runSerialTasks(runner)
-
-    // get first task
-    await expect(getSerialTasks(runner, 0)).to.eventually.equal(2)
-
-    // get second task
-    await expect(getSerialTasks(runner, 1)).to.eventually.equal(4)
-
-    // get third task
-    await expect(getSerialTasks(runner, 2)).to.eventually.equal(6)
-
-    // get forth task
-    await expect(getSerialTasks(runner, 3)).to.eventually.equal(8)
-
-    // get fifth task
-    await expect(getSerialTasks(runner, 4)).to.eventually.equal(10)
-  })
-
-  it('get specific task after run (contain error)', async () => {
-    const runner = createSerialTasksRunner()
-
-    const tasks = [
-      resolveFn.bind(null, 2, 2),
-      resolveFn.bind(null, 4, 4),
-      rejectFn.bind(null, 6, 6),
-      resolveFn.bind(null, 8, 8),
-      resolveFn.bind(null, 10, 10)
-    ]
-
-    // add all tasks
-    pushTasks(runner, ...tasks)
-
-    // run all tasks with error
-    await runSerialTasks(runner).catch(e => e)
-
-    // get first task
-    await expect(getSerialTasks(runner, 0)).to.eventually.equal(2)
-
-    // get second task
-    await expect(getSerialTasks(runner, 1)).to.eventually.equal(4)
-
-    // get third task
-    await expect(getSerialTasks(runner, 2)).to.eventually.rejectedWith(6)
-
-    // get forth task
-    await expect(getSerialTasks(runner, 3)).to.eventually.rejectedWith(Error)
-
-    // get fifth task
-    await expect(getSerialTasks(runner, 4)).to.eventually.rejectedWith(Error)
+    // get tasks length
+    // pushing noting must return the last item index
+    expect(pushTasks(runner) + 1).to.equal(count - 2 + newCount)
   })
 })
