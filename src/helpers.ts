@@ -1,6 +1,6 @@
 import { Task, ParallelTask, SerialTask, PipelineTask } from './runners/types'
 
-export const timeoutResult: Symbol = Symbol('timeout')
+export const timeoutResult = Symbol('timeout')
 
 export function createTimeoutResolve<T> (timeout: number, response: T, cancelToken?: Promise<unknown>): Promise<T> {
   // Returning the promise Immediately when cancelToken is not provided

@@ -53,7 +53,7 @@ export async function runSerialTasks<T> (taskRunner: SerialTasksRunner<T>): RunS
   return Promise.resolve(results)
 }
 
-function *iterateTasks<T> (taskRunner: SerialTasksRunner<T>): Generator<Promise<T>> {
+function * iterateTasks<T> (taskRunner: SerialTasksRunner<T>): Generator<Promise<T>> {
   // Creating a clone from tasks to get every run separate
   // and keep a reference for each task until the end because of WeakMap
   const tasksClone = [...taskRunner.tasks]

@@ -50,7 +50,7 @@ export async function runPipelineTasks<T> (taskRunner: PipelineTasksRunner<T>, f
   return Promise.resolve(lastResult)
 }
 
-function* iterateTasks<T> (taskRunner: PipelineTasksRunner<T>, firstArg: T, forceReRun = false): Generator<Promise<T>> {
+function * iterateTasks<T> (taskRunner: PipelineTasksRunner<T>, firstArg: T, forceReRun = false): Generator<Promise<T>> {
   // lastResult need as next task argument
   let lastResult: T = firstArg
 

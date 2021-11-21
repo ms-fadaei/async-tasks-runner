@@ -1,5 +1,14 @@
 {
   "extends": [
-    "@nuxtjs/eslint-config-typescript"
-  ]
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "standard"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
+  "rules": {
+    "@typescript-eslint/indent": ["error", 2],
+    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/no-explicit-any": "error"
+  }
 }

@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable no-console */
+/* eslint-disable no-unused-vars */
 import { createTimeoutResolve, createTimeoutReject } from '../src/helpers'
 import { Task } from '../src/index'
-import { _runParallelTasks } from './parallel'
+// import { _runParallelTasks } from './parallel'
 import { _runSerialTasks } from './serial'
-import { _runPipelineTasks } from './pipeline'
+// import { _runPipelineTasks } from './pipeline'
 
 ((async () => {
   const exampleTasks: Task<number>[] = [
