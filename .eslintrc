@@ -12,7 +12,7 @@
       "error",
       {
         "endOfLine": "auto"
-      },
+      }
     ],
     "@typescript-eslint/indent": ["error", 2],
     "@typescript-eslint/no-unused-vars": "error",
