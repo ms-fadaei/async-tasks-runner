@@ -17,5 +17,20 @@
     "@typescript-eslint/indent": ["error", 2],
     "@typescript-eslint/no-unused-vars": "error",
     "@typescript-eslint/no-explicit-any": "error"
-  }
+  },
+  "overrides": [
+    {
+      "files": ["test/*.test.mjs"],
+      "extends": [
+        "eslint:recommended",
+        "standard",
+        "plugin:prettier/recommended"
+      ],
+      "plugins": ["prettier"],
+      "parser": "",
+      "env": {
+        "mocha": true
+      }
+    }
+  ]
 }
