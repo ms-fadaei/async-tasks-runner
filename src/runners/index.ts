@@ -1,4 +1,4 @@
-import { Task, TasksRunner } from './types';
+import { Task, TasksRunner, TasksRunnerStatus } from './types';
 
 export function pushTasks<T>(taskRunner: TasksRunner<T>, ...tasks: Task<T>[]): number {
   // https://mdn.io/JavaScript/Reference/Global_Objects/Array/push
@@ -18,3 +18,8 @@ export function spliceTasks<T>(
     return taskRunner.tasks.splice(start, deleteCount, ...tasks);
   }
 }
+
+export function getTasksRunnerStatus<T>(taskRunner: TasksRunner<T>): TasksRunnerStatus {
+  return taskRunner.status;
+}
+
