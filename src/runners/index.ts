@@ -22,4 +22,3 @@ export function spliceTasks<T>(
 export function getTasksRunnerStatus<T>(taskRunner: TasksRunner<T>): TasksRunnerStatus {
   return taskRunner.status;
 }
-
