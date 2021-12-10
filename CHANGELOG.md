@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.1](https://github.com/ms-fadaei/async-tasks-runner/compare/v1.0.0-beta.2...v1.0.1) (2021-12-10)
+
+
+### Features
+
+* add `getTasksRunnerStatus` helper function ([627cdc2](https://github.com/ms-fadaei/async-tasks-runner/commit/627cdc240830cd29f11ec13d40afc6b91a8bdd81))
+* add renovate config ([527e537](https://github.com/ms-fadaei/async-tasks-runner/commit/527e537633f7cdf5013d5d2c370262450f098814))
+
 ## [1.0.0](https://github.com/ms-fadaei/async-tasks-runner/compare/v1.0.0-beta.2...v1.0.0) (2021-12-10)
 
 ### ⚠ BREAKING CHANGES

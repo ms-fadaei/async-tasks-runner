@@ -1,6 +1,6 @@
 {
   "name": "async-tasks-runner",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Run tasks in parallel, serial & pipeline.",
   "repository": "ms-fadaei/async-tasks-runner",
   "license": "MIT",
