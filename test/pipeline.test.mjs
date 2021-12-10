@@ -1,269 +1,196 @@
+import { expect, use } from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+import { createTimeoutResolve, createTimeoutReject } from '../dist/helpers.mjs';
+import {
+  createPipelineTasksRunner,
+  runParallelTasks,
+  getParallelTasks,
+  pushTasks,
+  spliceTasks,
+} from '../dist/index.mjs';
 
-import { expect, use } from 'chai'
-import chaiAsPromised from 'chai-as-promised'
-import { PipelineTasksRunner } from '../dist/index.mjs'
-
-use(chaiAsPromised)
+use(chaiAsPromised);
 
 describe('PipelineTasksRunner', () => {
-  function rejectFn (response, delay) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    return new Promise((resolve, reject) => setTimeout(reject, delay, response))
-  }
-
-  function resolveFn (response, delay) {
-    return new Promise(resolve => setTimeout(resolve, delay, response))
-  }
-
-  it('add tasks', () => {
-    const runner = new PipelineTasksRunner()
-
-    // add first task
-    const firstTask = resolveFn.bind(null, 10, 10)
-    expect(runner.add(firstTask)).to.equal(0)
-
-    // add second and third task in same call
-    const secondTask = resolveFn.bind(null, 20, 20)
-    const thirdTask = rejectFn.bind(null, 30, 30)
-    expect(runner.add(secondTask, thirdTask)).to.equal(2)
-
-    // add forth task in separate call
-    const forthTask = resolveFn.bind(null, 40, 40)
-    expect(runner.add(forthTask)).to.equal(3)
-  })
-
-  it('remove tasks', () => {
-    const runner = new PipelineTasksRunner()
-
-    // add tasks
-    const tasks = [
-      resolveFn.bind(null, 2, 2),
-      resolveFn.bind(null, 4, 4),
-      rejectFn.bind(null, 6, 6),
-      resolveFn.bind(null, 8, 8),
-      resolveFn.bind(null, 10, 10)
-    ]
-    expect(runner.add(...tasks)).to.equal(4)
-
-    // remove task number 2 and 3
-    expect(runner.remove(1, 2)).to.have.length(2)
-
-    // add new task
-    const newTask = resolveFn.bind(null, 12, 12)
-    expect(runner.add(newTask)).to.equal(3)
-  })
-
-  it('run tasks (with success)', async () => {
-    const runner = new PipelineTasksRunner()
-
-    const tasks = [
-      resolveFn.bind(null, 2, 2),
-      resolveFn.bind(null, 4, 4),
-      resolveFn.bind(null, 6, 6),
-      resolveFn.bind(null, 8, 8),
-      resolveFn.bind(null, 10, 10)
-    ]
-
-    // add all tasks
-    runner.add(...tasks)
-
-    expect(runner.status).to.equal('load')
-
-    // run all tasks
-    await expect(runner.run()).to.eventually.be.equal(10)
-
-    expect(runner.status).to.equal('fulfilled')
-  })
-
-  it('run tasks contain error', async () => {
-    const runner = new PipelineTasksRunner()
-
-    const tasks = [
-      resolveFn.bind(null, 2, 2),
-      resolveFn.bind(null, 4, 4),
-      rejectFn.bind(null, 6, 6),
-      resolveFn.bind(null, 8, 8),
-      resolveFn.bind(null, 10, 10)
-    ]
-
-    // add all tasks
-    runner.add(...tasks)
-
-    expect(runner.status).to.equal('load')
-
-    // run all tasks
-    await expect(runner.run()).to.eventually.rejected.to.equal(6)
-
-    expect(runner.status).to.equal('rejected')
-  })
-
-  it('unable to add tasks after run', async () => {
-    const runner = new PipelineTasksRunner()
-
-    const tasks = [
-      resolveFn.bind(null, 2, 2),
-      resolveFn.bind(null, 4, 4),
-      resolveFn.bind(null, 6, 6),
-      resolveFn.bind(null, 8, 8),
-      resolveFn.bind(null, 10, 10)
-    ]
+  it('Running some fulfilled tasks in parallel', async () => {
+    const runner = createPipelineTasksRunner();
 
-    // add all tasks
-    runner.add(...tasks)
+    // pushing 3 tasks
+    const firstTask = () => createTimeoutResolve(1, 1);
+    const secondTask = () => createTimeoutResolve(2, 2);
+    const thirdTask = () => createTimeoutResolve(3, 3);
+    pushTasks(runner, firstTask, secondTask, thirdTask);
 
-    // run all tasks
-    await runner.run().catch(e => e)
+    expect(runner.status).to.equal('standby');
 
-    // add new task
-    const newTask = resolveFn.bind(null, 1, 1)
-    expect(runner.add(newTask)).to.equal(-1)
-  })
+    const runningTasks = runParallelTasks(runner);
 
-  it('unable to remove tasks after run', async () => {
-    const runner = new PipelineTasksRunner()
+    expect(runner.status).to.equal('pending');
 
-    const tasks = [
-      resolveFn.bind(null, 2, 2),
-      resolveFn.bind(null, 4, 4),
-      resolveFn.bind(null, 6, 6),
-      resolveFn.bind(null, 8, 8),
-      resolveFn.bind(null, 10, 10)
-    ]
+    const results = await runningTasks;
 
-    // add all tasks
-    runner.add(...tasks)
+    expect(runner.status).to.equal('fulfilled');
 
-    // run all tasks
-    await runner.run()
+    expect(results).to.deep.equal([1, 2, 3].map((value) => ({ status: 'fulfilled', value })));
+  });
 
-    // add new task
-    expect(runner.remove(1, 2)).to.have.length(0)
-  })
+  it('Running some fulfilled & rejected tasks in parallel', async () => {
+    const runner = createPipelineTasksRunner();
 
-  it('reset after run', async () => {
-    const runner = new PipelineTasksRunner()
+    // pushing 3 tasks
+    const firstTask = () => createTimeoutResolve(1, 1);
+    const secondTask = () => createTimeoutReject(2, 2);
+    const thirdTask = () => createTimeoutResolve(3, 3);
+    pushTasks(runner, firstTask, secondTask, thirdTask);
 
-    const tasks = [
-      resolveFn.bind(null, 2, 2),
-      resolveFn.bind(null, 4, 4),
-      resolveFn.bind(null, 6, 6),
-      resolveFn.bind(null, 8, 8),
-      resolveFn.bind(null, 10, 10)
-    ]
+    expect(runner.status).to.equal('standby');
 
-    // add all tasks
-    runner.add(...tasks)
+    const runningTasks = runParallelTasks(runner);
 
-    // status before run
-    expect(runner.status).to.equal('load')
+    expect(runner.status).to.equal('pending');
 
-    // run all tasks
-    await runner.run()
+    const results = await runningTasks;
 
-    // status after run
-    expect(runner.status).to.equal('fulfilled')
+    expect(runner.status).to.equal('fulfilled');
 
-    // reset runner
-    runner.reset()
+    expect(results).to.deep.equal([
+      { status: 'fulfilled', value: 1 },
+      { status: 'rejected', reason: 2 },
+      { status: 'fulfilled', value: 3 },
+    ]);
+  });
 
-    // status after reset
-    expect(runner.status).to.equal('load')
+  it('Running some rejected tasks in parallel', async () => {
+    const runner = createPipelineTasksRunner();
 
-    // no running task
-    await expect(runner.get(1)).to.eventually.rejectedWith(Error)
-  })
+    // pushing 3 tasks
+    const firstTask = () => createTimeoutReject(1, 1);
+    const secondTask = () => createTimeoutReject(2, 2);
+    const thirdTask = () => createTimeoutReject(3, 3);
+    pushTasks(runner, firstTask, secondTask, thirdTask);
 
-  it('add task after run and reset', async () => {
-    const runner = new PipelineTasksRunner()
+    expect(runner.status).to.equal('standby');
 
-    const tasks = [
-      resolveFn.bind(null, 2, 2),
-      resolveFn.bind(null, 4, 4),
-      resolveFn.bind(null, 6, 6),
-      resolveFn.bind(null, 8, 8),
-      resolveFn.bind(null, 10, 10)
-    ]
+    const runningTasks = runParallelTasks(runner);
 
-    // add all tasks
-    runner.add(...tasks)
+    expect(runner.status).to.equal('pending');
 
-    // run all tasks
-    await runner.run()
+    const results = await runningTasks;
 
-    // add new task
-    const newTask = resolveFn.bind(null, 1, 1)
-    expect(runner.add(newTask)).to.equal(-1)
+    expect(runner.status).to.equal('fulfilled');
 
-    // reset runner
-    runner.reset()
+    expect(results).to.deep.equal([1, 2, 3].map((value) => ({ status: 'rejected', reason: value })));
+  });
 
-    // add new task (sixth task)
-    expect(runner.add(newTask)).to.equal(5)
-  })
+  it('Adding some tasks after first run (without waiting) & run again', async () => {
+    const runner = createPipelineTasksRunner();
 
-  it('get specific task after run (with success)', async () => {
-    const runner = new PipelineTasksRunner()
+    // pushing 3 tasks
+    const firstTask = () => createTimeoutResolve(1, 1);
+    const secondTask = () => createTimeoutResolve(2, 2);
+    const thirdTask = () => createTimeoutResolve(3, 3);
+    pushTasks(runner, firstTask, secondTask, thirdTask);
 
-    const tasks = [
-      resolveFn.bind(null, 2, 2),
-      resolveFn.bind(null, 4, 4),
-      resolveFn.bind(null, 6, 6),
-      resolveFn.bind(null, 8, 8),
-      resolveFn.bind(null, 10, 10)
-    ]
+    expect(runner.status).to.equal('standby');
 
-    // add all tasks
-    runner.add(...tasks)
+    const firstRunningTasks = runParallelTasks(runner);
 
-    // run all tasks
-    await runner.run()
+    expect(runner.status).to.equal('pending');
 
-    // get first task
-    await expect(runner.get(0)).to.eventually.equal(2)
+    // splice second task and insert two new tasks
+    spliceTasks(
+      runner,
+      1,
+      1,
+      () => createTimeoutResolve(4, 4),
+      () => createTimeoutResolve(5, 5),
+    );
 
-    // get second task
-    await expect(runner.get(1)).to.eventually.equal(4)
+    const secondRunningTasks = runParallelTasks(runner);
 
-    // get third task
-    await expect(runner.get(2)).to.eventually.equal(6)
+    expect(runner.status).to.equal('pending');
 
-    // get forth task
-    await expect(runner.get(3)).to.eventually.equal(8)
+    const firstResults = await firstRunningTasks;
 
-    // get fifth task
-    await expect(runner.get(4)).to.eventually.equal(10)
-  })
+    expect(firstResults).to.deep.equal([1, 2, 3].map((value) => ({ status: 'fulfilled', value })));
 
-  it('get specific task after run (contain error)', async () => {
-    const runner = new PipelineTasksRunner()
+    // status should be still pending because it depend to last run status
+    expect(runner.status).to.equal('pending');
 
-    const tasks = [
-      resolveFn.bind(null, 2, 2),
-      resolveFn.bind(null, 4, 4),
-      rejectFn.bind(null, 6, 6),
-      resolveFn.bind(null, 8, 8),
-      resolveFn.bind(null, 10, 10)
-    ]
+    const secondResults = await secondRunningTasks;
 
-    // add all tasks
-    runner.add(...tasks)
+    expect(runner.status).to.equal('fulfilled');
 
-    // run all tasks with error
-    await runner.run().catch(e => e)
+    expect(secondResults).to.deep.equal([1, 4, 5, 3].map((value) => ({ status: 'fulfilled', value })));
+  });
 
-    // get first task
-    await expect(runner.get(0)).to.eventually.equal(2)
+  it('Getting a specific task before running', async () => {
+    const runner = createPipelineTasksRunner();
 
-    // get second task
-    await expect(runner.get(1)).to.eventually.equal(4)
+    // pushing 3 tasks
+    const firstTask = () => createTimeoutResolve(1, 1);
+    const secondTask = () => createTimeoutResolve(2, 2);
+    const thirdTask = () => createTimeoutResolve(3, 3);
+    pushTasks(runner, firstTask, secondTask, thirdTask);
 
-    // get third task
-    await expect(runner.get(2)).to.eventually.rejectedWith(6)
+    await expect(getParallelTasks(runner, 2)).to.eventually.rejectedWith(Error);
+  });
 
-    // get forth task
-    await expect(runner.get(3)).to.eventually.rejectedWith(Error)
+  it('Getting a specific task after running but out of the bound', async () => {
+    const runner = createPipelineTasksRunner();
 
-    // get fifth task
-    await expect(runner.get(4)).to.eventually.rejectedWith(Error)
-  })
-})
+    // pushing 3 tasks
+    const firstTask = () => createTimeoutResolve(1, 1);
+    const secondTask = () => createTimeoutResolve(2, 2);
+    const thirdTask = () => createTimeoutResolve(3, 3);
+    pushTasks(runner, firstTask, secondTask, thirdTask);
+
+    await expect(getParallelTasks(runner, 4)).to.eventually.rejectedWith(Error);
+  });
+
+  it('Getting a specific task after running', async () => {
+    const runner = createPipelineTasksRunner();
+
+    // pushing 3 tasks
+    const firstTask = () => createTimeoutResolve(1, 1);
+    const secondTask = () => createTimeoutResolve(2, 2);
+    const thirdTask = () => createTimeoutResolve(3, 3);
+    pushTasks(runner, firstTask, secondTask, thirdTask);
+
+    runParallelTasks(runner);
+
+    await expect(getParallelTasks(runner, 1)).to.eventually.equal(2);
+  });
+
+  it('Getting a specific task that added after the first run but before the second run', async () => {
+    const runner = createPipelineTasksRunner();
+
+    // pushing 3 tasks
+    const firstTask = () => createTimeoutResolve(1, 1);
+    const secondTask = () => createTimeoutResolve(2, 2);
+    const thirdTask = () => createTimeoutResolve(3, 3);
+    pushTasks(runner, firstTask, secondTask, thirdTask);
+
+    runParallelTasks(runner);
+
+    spliceTasks(runner, 1, 1, () => createTimeoutResolve(4, 4));
+
+    await expect(getParallelTasks(runner, 1)).to.eventually.rejectedWith(Error);
+  });
+
+  it('Getting a specific task that added after the first and the second run', async () => {
+    const runner = createPipelineTasksRunner();
+
+    // pushing 3 tasks
+    const firstTask = () => createTimeoutResolve(1, 1);
+    const secondTask = () => createTimeoutResolve(2, 2);
+    const thirdTask = () => createTimeoutResolve(3, 3);
+    pushTasks(runner, firstTask, secondTask, thirdTask);
+
+    runParallelTasks(runner);
+
+    spliceTasks(runner, 1, 1, () => createTimeoutResolve(4, 4));
+
+    await expect(getParallelTasks(runner, 1)).to.eventually.rejectedWith(Error);
+  });
+});

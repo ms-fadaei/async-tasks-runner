@@ -1,214 +1,196 @@
+import { expect, use } from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+import { createTimeoutResolve, createTimeoutReject } from '../dist/helpers.mjs';
+import {
+  createParallelTasksRunner,
+  runParallelTasks,
+  getParallelTasks,
+  pushTasks,
+  spliceTasks,
+} from '../dist/index.mjs';
 
-import { expect, use } from 'chai'
-import chaiAsPromised from 'chai-as-promised'
-import { ParallelTasksRunner } from '../dist/index.mjs'
-
-use(chaiAsPromised)
+use(chaiAsPromised);
 
 describe('ParallelTasksRunner', () => {
-  function rejectFn (response, delay) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    return new Promise((resolve, reject) => setTimeout(reject, delay, response))
-  }
+  it('Running some fulfilled tasks in parallel', async () => {
+    const runner = createParallelTasksRunner();
 
-  function resolveFn (response, delay) {
-    return new Promise(resolve => setTimeout(resolve, delay, response))
-  }
+    // pushing 3 tasks
+    const firstTask = () => createTimeoutResolve(1, 1);
+    const secondTask = () => createTimeoutResolve(2, 2);
+    const thirdTask = () => createTimeoutResolve(3, 3);
+    pushTasks(runner, firstTask, secondTask, thirdTask);
 
-  it('add tasks', () => {
-    const runner = new ParallelTasksRunner()
+    expect(runner.status).to.equal('standby');
 
-    // add first task
-    const firstTask = resolveFn.bind(null, 10, 10)
-    expect(runner.add(firstTask)).to.equal(0)
+    const runningTasks = runParallelTasks(runner);
 
-    // add second and third task in same call
-    const secondTask = resolveFn.bind(null, 20, 20)
-    const thirdTask = rejectFn.bind(null, 30, 30)
-    expect(runner.add(secondTask, thirdTask)).to.equal(2)
+    expect(runner.status).to.equal('pending');
 
-    // add forth task in separate call
-    const forthTask = resolveFn.bind(null, 40, 40)
-    expect(runner.add(forthTask)).to.equal(3)
-  })
+    const results = await runningTasks;
 
-  it('remove tasks', () => {
-    const runner = new ParallelTasksRunner()
+    expect(runner.status).to.equal('fulfilled');
 
-    // add tasks
-    const tasks = [
-      resolveFn.bind(null, 2, 2),
-      resolveFn.bind(null, 4, 4),
-      rejectFn.bind(null, 6, 6),
-      resolveFn.bind(null, 8, 8),
-      resolveFn.bind(null, 10, 10)
-    ]
-    expect(runner.add(...tasks)).to.equal(4)
+    expect(results).to.deep.equal([1, 2, 3].map((value) => ({ status: 'fulfilled', value })));
+  });
 
-    // remove task number 2 and 3
-    expect(runner.remove(1, 2)).to.have.length(2)
+  it('Running some fulfilled & rejected tasks in parallel', async () => {
+    const runner = createParallelTasksRunner();
 
-    // add new task
-    const newTask = resolveFn.bind(null, 12, 12)
-    expect(runner.add(newTask)).to.equal(3)
-  })
+    // pushing 3 tasks
+    const firstTask = () => createTimeoutResolve(1, 1);
+    const secondTask = () => createTimeoutReject(2, 2);
+    const thirdTask = () => createTimeoutResolve(3, 3);
+    pushTasks(runner, firstTask, secondTask, thirdTask);
 
-  it('run tasks', async () => {
-    const runner = new ParallelTasksRunner()
+    expect(runner.status).to.equal('standby');
 
-    const tasks = [
-      resolveFn.bind(null, 2, 2),
-      resolveFn.bind(null, 4, 4),
-      rejectFn.bind(null, 6, 6),
-      resolveFn.bind(null, 8, 8),
-      resolveFn.bind(null, 10, 10)
-    ]
+    const runningTasks = runParallelTasks(runner);
 
-    // add all tasks
-    runner.add(...tasks)
+    expect(runner.status).to.equal('pending');
 
-    expect(runner.status).to.equal('load')
+    const results = await runningTasks;
 
-    // run all tasks
-    await expect(runner.run()).to.eventually.have.length(5)
+    expect(runner.status).to.equal('fulfilled');
 
-    expect(runner.status).to.equal('fulfilled')
-  })
+    expect(results).to.deep.equal([
+      { status: 'fulfilled', value: 1 },
+      { status: 'rejected', reason: 2 },
+      { status: 'fulfilled', value: 3 },
+    ]);
+  });
 
-  it('unable to add tasks after run', async () => {
-    const runner = new ParallelTasksRunner()
+  it('Running some rejected tasks in parallel', async () => {
+    const runner = createParallelTasksRunner();
 
-    const tasks = [
-      resolveFn.bind(null, 2, 2),
-      resolveFn.bind(null, 4, 4),
-      rejectFn.bind(null, 6, 6),
-      resolveFn.bind(null, 8, 8),
-      resolveFn.bind(null, 10, 10)
-    ]
+    // pushing 3 tasks
+    const firstTask = () => createTimeoutReject(1, 1);
+    const secondTask = () => createTimeoutReject(2, 2);
+    const thirdTask = () => createTimeoutReject(3, 3);
+    pushTasks(runner, firstTask, secondTask, thirdTask);
 
-    // add all tasks
-    runner.add(...tasks)
+    expect(runner.status).to.equal('standby');
 
-    // run all tasks
-    await runner.run()
+    const runningTasks = runParallelTasks(runner);
 
-    // add new task
-    const newTask = resolveFn.bind(null, 1, 1)
-    expect(runner.add(newTask)).to.equal(-1)
-  })
+    expect(runner.status).to.equal('pending');
 
-  it('unable to remove tasks after run', async () => {
-    const runner = new ParallelTasksRunner()
+    const results = await runningTasks;
 
-    const tasks = [
-      resolveFn.bind(null, 2, 2),
-      resolveFn.bind(null, 4, 4),
-      rejectFn.bind(null, 6, 6),
-      resolveFn.bind(null, 8, 8),
-      resolveFn.bind(null, 10, 10)
-    ]
+    expect(runner.status).to.equal('fulfilled');
 
-    // add all tasks
-    runner.add(...tasks)
+    expect(results).to.deep.equal([1, 2, 3].map((value) => ({ status: 'rejected', reason: value })));
+  });
 
-    // run all tasks
-    await runner.run()
+  it('Adding some tasks after first run (without waiting) & run again', async () => {
+    const runner = createParallelTasksRunner();
 
-    // add new task
-    expect(runner.remove(1, 2)).to.have.length(0)
-  })
+    // pushing 3 tasks
+    const firstTask = () => createTimeoutResolve(1, 1);
+    const secondTask = () => createTimeoutResolve(2, 2);
+    const thirdTask = () => createTimeoutResolve(3, 3);
+    pushTasks(runner, firstTask, secondTask, thirdTask);
 
-  it('reset after run', async () => {
-    const runner = new ParallelTasksRunner()
+    expect(runner.status).to.equal('standby');
 
-    const tasks = [
-      resolveFn.bind(null, 2, 2),
-      resolveFn.bind(null, 4, 4),
-      rejectFn.bind(null, 6, 6),
-      resolveFn.bind(null, 8, 8),
-      resolveFn.bind(null, 10, 10)
-    ]
+    const firstRunningTasks = runParallelTasks(runner);
 
-    // add all tasks
-    runner.add(...tasks)
+    expect(runner.status).to.equal('pending');
 
-    // status before run
-    expect(runner.status).to.equal('load')
+    // splice second task and insert two new tasks
+    spliceTasks(
+      runner,
+      1,
+      1,
+      () => createTimeoutResolve(4, 4),
+      () => createTimeoutResolve(5, 5),
+    );
 
-    // run all tasks
-    await runner.run()
+    const secondRunningTasks = runParallelTasks(runner);
 
-    // status after run
-    expect(runner.status).to.equal('fulfilled')
+    expect(runner.status).to.equal('pending');
 
-    // reset runner
-    runner.reset()
+    const firstResults = await firstRunningTasks;
 
-    // status after reset
-    expect(runner.status).to.equal('load')
+    expect(firstResults).to.deep.equal([1, 2, 3].map((value) => ({ status: 'fulfilled', value })));
 
-    // no running task
-    await expect(runner.get(1)).to.eventually.rejectedWith(Error)
-  })
+    // status should be still pending because it depend to last run status
+    expect(runner.status).to.equal('pending');
 
-  it('add task after run and reset', async () => {
-    const runner = new ParallelTasksRunner()
+    const secondResults = await secondRunningTasks;
 
-    const tasks = [
-      resolveFn.bind(null, 2, 2),
-      resolveFn.bind(null, 4, 4),
-      rejectFn.bind(null, 6, 6),
-      resolveFn.bind(null, 8, 8),
-      resolveFn.bind(null, 10, 10)
-    ]
+    expect(runner.status).to.equal('fulfilled');
 
-    // add all tasks
-    runner.add(...tasks)
+    expect(secondResults).to.deep.equal([1, 4, 5, 3].map((value) => ({ status: 'fulfilled', value })));
+  });
 
-    // run all tasks
-    await runner.run()
+  it('Getting a specific task before running', async () => {
+    const runner = createParallelTasksRunner();
 
-    // add new task
-    const newTask = resolveFn.bind(null, 1, 1)
-    expect(runner.add(newTask)).to.equal(-1)
+    // pushing 3 tasks
+    const firstTask = () => createTimeoutResolve(1, 1);
+    const secondTask = () => createTimeoutResolve(2, 2);
+    const thirdTask = () => createTimeoutResolve(3, 3);
+    pushTasks(runner, firstTask, secondTask, thirdTask);
 
-    // reset runner
-    runner.reset()
+    await expect(getParallelTasks(runner, 2)).to.eventually.rejectedWith(Error);
+  });
 
-    // add new task (sixth task)
-    expect(runner.add(newTask)).to.equal(5)
-  })
+  it('Getting a specific task after running but out of the bound', async () => {
+    const runner = createParallelTasksRunner();
 
-  it('get specific task after run', async () => {
-    const runner = new ParallelTasksRunner()
+    // pushing 3 tasks
+    const firstTask = () => createTimeoutResolve(1, 1);
+    const secondTask = () => createTimeoutResolve(2, 2);
+    const thirdTask = () => createTimeoutResolve(3, 3);
+    pushTasks(runner, firstTask, secondTask, thirdTask);
 
-    const tasks = [
-      resolveFn.bind(null, 2, 2),
-      resolveFn.bind(null, 4, 4),
-      rejectFn.bind(null, 6, 6),
-      resolveFn.bind(null, 8, 8),
-      resolveFn.bind(null, 10, 10)
-    ]
+    await expect(getParallelTasks(runner, 4)).to.eventually.rejectedWith(Error);
+  });
 
-    // add all tasks
-    runner.add(...tasks)
+  it('Getting a specific task after running', async () => {
+    const runner = createParallelTasksRunner();
 
-    // run all tasks
-    await runner.run()
+    // pushing 3 tasks
+    const firstTask = () => createTimeoutResolve(1, 1);
+    const secondTask = () => createTimeoutResolve(2, 2);
+    const thirdTask = () => createTimeoutResolve(3, 3);
+    pushTasks(runner, firstTask, secondTask, thirdTask);
 
-    // get first task
-    await expect(runner.get(0)).to.eventually.equal(2)
+    runParallelTasks(runner);
 
-    // get second task
-    await expect(runner.get(1)).to.eventually.equal(4)
+    await expect(getParallelTasks(runner, 1)).to.eventually.equal(2);
+  });
 
-    // get third task
-    await expect(runner.get(2)).to.eventually.rejectedWith(6)
+  it('Getting a specific task that added after the first run but before the second run', async () => {
+    const runner = createParallelTasksRunner();
 
-    // get forth task
-    await expect(runner.get(3)).to.eventually.equal(8)
+    // pushing 3 tasks
+    const firstTask = () => createTimeoutResolve(1, 1);
+    const secondTask = () => createTimeoutResolve(2, 2);
+    const thirdTask = () => createTimeoutResolve(3, 3);
+    pushTasks(runner, firstTask, secondTask, thirdTask);
 
-    // get fifth task
-    await expect(runner.get(4)).to.eventually.equal(10)
-  })
-})
+    runParallelTasks(runner);
+
+    spliceTasks(runner, 1, 1, () => createTimeoutResolve(4, 4));
+
+    await expect(getParallelTasks(runner, 1)).to.eventually.rejectedWith(Error);
+  });
+
+  it('Getting a specific task that added after the first and the second run', async () => {
+    const runner = createParallelTasksRunner();
+
+    // pushing 3 tasks
+    const firstTask = () => createTimeoutResolve(1, 1);
+    const secondTask = () => createTimeoutResolve(2, 2);
+    const thirdTask = () => createTimeoutResolve(3, 3);
+    pushTasks(runner, firstTask, secondTask, thirdTask);
+
+    runParallelTasks(runner);
+
+    spliceTasks(runner, 1, 1, () => createTimeoutResolve(4, 4));
+
+    await expect(getParallelTasks(runner, 1)).to.eventually.rejectedWith(Error);
+  });
+});

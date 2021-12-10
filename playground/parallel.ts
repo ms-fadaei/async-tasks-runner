@@ -1,65 +1,153 @@
 /* eslint-disable no-console */
-import { ParallelTasksRunner } from '../src/index'
+import { createParallelTasksRunner, runParallelTasks, getParallelTasks, pushTasks, spliceTasks } from '../src/index';
 
-export async function runParallelTasks (...exampleTasks) {
-  // 1. run all tasks with run method
-  let parallel = new ParallelTasksRunner(...exampleTasks)
-  console.time('parallel 1 timing')
-  const result1 = await parallel.run()
-  console.timeEnd('parallel 1 timing')
-  console.log('parallel 1 result', result1)
+export async function _runParallelTasks(...tasks) {
+  // 1. Create the runner with two first tasks (blocking result)
+  console.log('1. Create the runner with two first tasks (blocking result)');
+  let runner = createParallelTasksRunner(tasks[0], tasks[1]);
 
-  console.log('\n\n')
+  // 1.1. Run the runner with task 8 and 2
+  {
+    console.log('\n\n1.1. Run the runner with task 8 and 2');
+    console.time('parallel-run-time');
+    const result = await runParallelTasks(runner).catch((e) => `!!!ERROR: ${e}`);
+    console.timeEnd('parallel-run-time');
+    console.log('parallel-result', result);
+  }
 
-  // 2. run all tasks, but just waiting for task number 3 (resolve)
-  parallel = new ParallelTasksRunner(...exampleTasks)
-  console.time('parallel 2 timing')
-  let result3: any = parallel.run()
-  const result2 = await parallel.get(2)
-  console.timeEnd('parallel 2 timing')
-  console.log('parallel 2 result', result2)
+  // 1.2. Push task 6 and run it again
+  {
+    console.log('\n\n1.2. Push task 6 and run it again');
+    pushTasks(runner, tasks[2]);
+    console.time('parallel-run-time');
+    const result = await runParallelTasks(runner).catch((e) => `!!!ERROR: ${e}`);
+    console.timeEnd('parallel-run-time');
+    console.log('parallel-result', result);
+  }
 
-  console.log('\n\n')
+  // 1.3. Push task 16 and run it again
+  {
+    console.log('\n\n1.3. Push task 16 and run it again');
+    pushTasks(runner, tasks[3]);
+    console.time('parallel-run-time');
+    const result = await runParallelTasks(runner).catch((e) => `!!!ERROR: ${e}`);
+    console.timeEnd('parallel-run-time');
+    console.log('parallel-result', result);
+  }
 
-  // 3. get tasks result from pervious run
-  console.time('parallel 3 timing')
-  result3 = await result3
-  console.timeEnd('parallel 3 timing')
-  console.log('parallel 3 result', result3)
+  // 1.4. Remove task 16 and insert 12 abd 4 instead
+  {
+    console.log('\n\n1.4. Remove task 16 and insert 12 abd 4 instead');
+    spliceTasks(runner, 3, 1, tasks[4], tasks[5]);
+    console.time('parallel-run-time');
+    const result = await runParallelTasks(runner).catch((e) => `!!!ERROR: ${e}`);
+    console.timeEnd('parallel-run-time');
+    console.log('parallel-result', result);
+  }
 
-  console.log('\n\n')
+  // 1.5. Remove all tasks and insert 18, 14, 10, 20
+  {
+    console.log('\n\n1.5. Remove all tasks and insert 18, 14, 10, 20');
+    spliceTasks(runner, 0, 5, tasks[6], tasks[7], tasks[8], tasks[9]);
+    console.time('parallel-run-time');
+    const result = await runParallelTasks(runner).catch((e) => `!!!ERROR: ${e}`);
+    console.timeEnd('parallel-run-time');
+    console.log('parallel-result', result);
+  }
 
-  // 4. run all tasks, but just waiting for task number 4 (reject)
-  parallel = new ParallelTasksRunner(...exampleTasks)
-  console.time('parallel 4 timing')
-  let result5: any = parallel.run()
-  const result4 = await parallel.get(3).catch(e => new Error(e))
-  console.timeEnd('parallel 4 timing')
-  console.log('parallel 4 result', result4)
+  // 1.6. get task 10
+  {
+    console.log('\n\n1.6. get task 10');
+    console.time('parallel-run-time');
+    const result = await getParallelTasks(runner, 2).catch((e) => `!!!ERROR: ${e}`);
+    console.timeEnd('parallel-run-time');
+    console.log('parallel-result', result);
+  }
 
-  console.log('\n\n')
+  // 1.7. get task 20 (rejected task)
+  {
+    console.log('\n\n1.7. get task 20 (rejected task)');
+    console.time('parallel-run-time');
+    const result = await getParallelTasks(runner, 3).catch((e) => `!!!ERROR: ${e}`);
+    console.timeEnd('parallel-run-time');
+    console.log('parallel-result', result);
+  }
 
-  // 5. get tasks result from pervious run
-  console.time('parallel 5 timing')
-  result5 = await result5
-  console.timeEnd('parallel 5 timing')
-  console.log('parallel 5 result', result5)
+  // 2. Create the runner with two first tasks (non-blocking result)
+  console.log('\n\n\n2. Create the runner with two first tasks (non-blocking result)');
+  runner = createParallelTasksRunner(tasks[0], tasks[1]);
 
-  console.log('\n\n')
+  // 2.1. Run the runner with task 8 and 2
+  console.time('parallel-run-time');
+  runParallelTasks(runner)
+    .catch((e) => `!!!ERROR: ${e}`)
+    .then((result) => {
+      console.log('\n\n2.1. Run the runner with task 8 and 2');
+      console.timeEnd('parallel-run-time');
+      console.log('parallel-result', result);
+    });
 
-  // 6. run all tasks, but just waiting for task number 5 (resolve)
-  parallel = new ParallelTasksRunner(...exampleTasks)
-  console.time('parallel 6 timing')
-  let result7: any = parallel.run()
-  const result6 = await parallel.get(4)
-  console.timeEnd('parallel 6 timing')
-  console.log('parallel 6 result', result6)
+  // 2.2. Push task 6 and run it again
+  pushTasks(runner, tasks[2]);
+  console.time('parallel-run-time-1');
+  runParallelTasks(runner)
+    .catch((e) => `!!!ERROR: ${e}`)
+    .then((result) => {
+      console.log('\n\n2.2. Push task 6 and run it again');
+      console.timeEnd('parallel-run-time-1');
+      console.log('parallel-result', result);
+    });
 
-  console.log('\n\n')
+  // 2.3. Push task 16 and run it again
+  pushTasks(runner, tasks[3]);
+  console.time('parallel-run-time-2');
+  runParallelTasks(runner)
+    .catch((e) => `!!!ERROR: ${e}`)
+    .then((result) => {
+      console.log('\n\n2.3. Push task 16 and run it again');
+      console.timeEnd('parallel-run-time-2');
+      console.log('parallel-result', result);
+    });
 
-  // 7. get tasks result from pervious run
-  console.time('parallel 7 timing')
-  result7 = await result7
-  console.timeEnd('parallel 7 timing')
-  console.log('parallel 7 result', result7)
+  // 2.4. Remove task 16 and insert 12 abd 4 instead
+  spliceTasks(runner, 3, 1, tasks[4], tasks[5]);
+  console.time('parallel-run-time-3');
+  runParallelTasks(runner)
+    .catch((e) => `!!!ERROR: ${e}`)
+    .then((result) => {
+      console.log('\n\n2.4. Remove task 16 and insert 12 abd 4 instead');
+      console.timeEnd('parallel-run-time-3');
+      console.log('parallel-result', result);
+    });
+
+  // 2.5. Remove all tasks and insert 18, 14, 10, 20
+  spliceTasks(runner, 0, 5, tasks[6], tasks[7], tasks[8], tasks[9]);
+  console.time('parallel-run-time-4');
+  runParallelTasks(runner)
+    .catch((e) => `!!!ERROR: ${e}`)
+    .then((result) => {
+      console.log('\n\n2.5. Remove all tasks and insert 18, 14, 10, 20');
+      console.timeEnd('parallel-run-time-4');
+      console.log('parallel-result', result);
+    });
+
+  // 2.6. get task 10
+  console.time('parallel-run-time-5');
+  getParallelTasks(runner, 2)
+    .catch((e) => `!!!ERROR: ${e}`)
+    .then((result) => {
+      console.log('\n\n2.6. get task 10');
+      console.timeEnd('parallel-run-time-5');
+      console.log('parallel-result', result);
+    });
+
+  // 2.7. get task 20 (rejected task)
+  console.time('parallel-run-time-6');
+  getParallelTasks(runner, 3)
+    .catch((e) => `!!!ERROR: ${e}`)
+    .then((result) => {
+      console.log('\n\n2.7. get task 20 (rejected task)');
+      console.timeEnd('parallel-run-time-6');
+      console.log('parallel-result', result);
+    });
 }

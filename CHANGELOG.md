@@ -2,6 +2,60 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-beta.2](https://github.com/ms-fadaei/async-tasks-runner/compare/v1.0.0-beta.1...v1.0.0-beta.2) (2021-11-16)
+
+### ⚠ BREAKING CHANGES
+
+* `resetTasks` removed. you can use `runner = create*TasksRunner(...runner.tasks)` instead
+* use `ParallelTask` & `SerialTask`type instead of `NormalTask`
+* use `NormalTask` type instead of `Task` type for `parallel` and `serial` runners
+
+### Features
+
+* add helpers module ([a5da6d4](https://github.com/ms-fadaei/async-tasks-runner/commit/a5da6d41afe746846e48249e03a3af6980ea2a79))
+* add the ability to update tasks even after run ([5eaa3f9](https://github.com/ms-fadaei/async-tasks-runner/commit/5eaa3f99d19b1f90134c9b3d43717d98a8df4e0e))
+
+
+### Bug Fixes
+
+* fix executeCount type ([d4ef5bd](https://github.com/ms-fadaei/async-tasks-runner/commit/d4ef5bde2809e60a6f78f7ee375967f0c3268fde))
+
+
+* use strict type for tasks ([845ae89](https://github.com/ms-fadaei/async-tasks-runner/commit/845ae893b8ff367ca15abf83d7fdd5eda370a05d))
+
+
+### refator
+
+* split `NormalTask` type ([d74c394](https://github.com/ms-fadaei/async-tasks-runner/commit/d74c39420ccfa010edd8839ae3448f7d115cd61d))
+
+* remove `resetTasks` function ([1892230](https://github.com/ms-fadaei/async-tasks-runner/commit/189223004167505f30cf046b6e0c42596f9eaafc))
+
+## [1.0.0-beta.0](https://github.com/ms-fadaei/async-tasks-runner/compare/v0.0.2...v1.0.0-beta.0) (2021-11-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* use `TasksRunnerStatus` type instead of `TaskRunnerStatus`
+* you need to use `standby` instead of `load`
+* You need to use new `create*TasksRunner()` exports
+* you need to use `pending` instead of `running`
+
+### Features
+
+* fully type support ([434d4b0](https://github.com/ms-fadaei/async-tasks-runner/commit/434d4b05b3addab86d58197277a374b458606e83))
+* tasks can be added in any position ([c5b0dba](https://github.com/ms-fadaei/async-tasks-runner/commit/c5b0dba0bc859a766d4763b7648fbf5d3ccf5013))
+
+
+### Bug Fixes
+
+* fix common js bug in importing package ([901e9c1](https://github.com/ms-fadaei/async-tasks-runner/commit/901e9c12a0c599ced91225f72303a821b60d32fa))
+
+
+* rename `load` status to `standby` ([2fd713b](https://github.com/ms-fadaei/async-tasks-runner/commit/2fd713b119cd1d9018f923f82ee9295a1f86e3ae))
+* rename `running` status to `pending` ([89abebe](https://github.com/ms-fadaei/async-tasks-runner/commit/89abebe544cb74e1499f65152fe8554283119637))
+* use conversational naming ([ab71221](https://github.com/ms-fadaei/async-tasks-runner/commit/ab7122176daf04a03eddc2392f1bbc1273673ef6))
+* use named functions instead of classes ([7d07ba9](https://github.com/ms-fadaei/async-tasks-runner/commit/7d07ba912807791d9d13144692f5ff52ea963d37))
+
 ### [0.0.2](https://github.com/ms-fadaei/async-tasks-runner/compare/v0.0.1...v0.0.2) (2021-11-08)
 
 ### 0.0.1 (2021-11-08)

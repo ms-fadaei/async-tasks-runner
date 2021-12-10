@@ -1,6 +1,6 @@
 {
   "name": "async-tasks-runner",
-  "version": "0.0.2",
+  "version": "1.0.0-beta.2",
   "description": "Run tasks in parallel, serial & pipeline.",
   "repository": "ms-fadaei/async-tasks-runner",
   "license": "MIT",
@@ -19,11 +19,14 @@
   "sideEffects": false,
   "type": "module",
   "exports": {
-    "node": {
+    ".": {
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
     },
-    "default": "./dist/index.mjs"
+    "./helpers": {
+      "import": "./dist/helpers.mjs",
+      "require": "./dist/helpers.cjs"
+    }
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -34,10 +37,14 @@
   "scripts": {
     "build": "unbuild",
     "prepack": "yarn build",
-    "lint": "eslint --ext .ts .",
+    "lint": "eslint --ext .ts,mjs --ignore-path .gitignore .",
     "play": "jiti playground/index.ts",
     "release": "yarn test && npx standard-version && git push --follow-tags && npm publish",
     "test": "yarn build && mocha ./test/*.test.*"
+  },
+  "lint-staged": {
+    "*.ts": "eslint --fix",
+    "*.test.mjs": "eslint --fix"
   },
   "dependencies": {},
   "devDependencies": {
@@ -45,11 +52,22 @@
     "@types/flat": "latest",
     "@types/mocha": "^9.0.0",
     "@types/node": "latest",
+    "@typescript-eslint/eslint-plugin": "^5.4.0",
+    "@typescript-eslint/parser": "^5.4.0",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
     "eslint": "^8",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-promise": "^5.1.1",
+    "husky": "^7.0.4",
     "jiti": "latest",
+    "lint-staged": "^12.1.2",
     "mocha": "^9.1.3",
+    "prettier": "2.4.1",
     "standard-version": "latest",
     "typescript": "latest",
     "unbuild": "latest"

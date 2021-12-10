@@ -1,5 +1,5 @@
 {
   "extends": [
-    "@nuxtjs"
+    "config:base"
   ]
 }
