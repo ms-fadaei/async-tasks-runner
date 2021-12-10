@@ -1,13 +1,26 @@
 import { PipelineTask, PipelineTasksRunner, RunPipelineTasksResult } from './types';
 
 export function createPipelineTasksRunner<T>(...tasks: PipelineTask<T>[]): PipelineTasksRunner<T> {
-  return {
-    tasks,
-    pendingTasks: new WeakMap(),
-    executeCount: 0,
-    status: 'standby',
-    runnerFirstArgCache: undefined,
-  };
+  return Object.create(null, {
+    tasks: {
+      value: tasks,
+    },
+    pendingTasks: {
+      value: new WeakMap(),
+    },
+    executeCount: {
+      value: 0,
+      writable: true,
+    },
+    status: {
+      value: 'standby',
+      writable: true,
+    },
+    runnerFirstArgCache: {
+      value: undefined,
+      writable: true,
+    },
+  });
 }
 
 export async function runPipelineTasks<T>(taskRunner: PipelineTasksRunner<T>, firstArg: T): RunPipelineTasksResult<T> {

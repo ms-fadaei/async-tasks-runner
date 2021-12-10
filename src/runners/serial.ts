@@ -1,12 +1,22 @@
 import { SerialTask, SerialTasksRunner, RunSerialTasksResult } from './types';
 
 export function createSerialTasksRunner<T>(...tasks: SerialTask<T>[]): SerialTasksRunner<T> {
-  return {
-    tasks,
-    pendingTasks: new WeakMap(),
-    executeCount: 0,
-    status: 'standby',
-  };
+  return Object.create(null, {
+    tasks: {
+      value: tasks,
+    },
+    pendingTasks: {
+      value: new WeakMap(),
+    },
+    executeCount: {
+      value: 0,
+      writable: true,
+    },
+    status: {
+      value: 'standby',
+      writable: true,
+    },
+  });
 }
 
 export async function runSerialTasks<T>(taskRunner: SerialTasksRunner<T>): RunSerialTasksResult<T> {

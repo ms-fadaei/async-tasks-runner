@@ -1,12 +1,22 @@
 import { ParallelTask, ParallelTasksRunner, RunParallelTasksResult } from './types';
 
 export function createParallelTasksRunner<T>(...tasks: ParallelTask<T>[]): ParallelTasksRunner<T> {
-  return {
-    tasks,
-    pendingTasks: new WeakMap(),
-    executeCount: 0,
-    status: 'standby',
-  };
+  return Object.create(null, {
+    tasks: {
+      value: tasks,
+    },
+    pendingTasks: {
+      value: new WeakMap(),
+    },
+    executeCount: {
+      value: 0,
+      writable: true,
+    },
+    status: {
+      value: 'standby',
+      writable: true,
+    },
+  });
 }
 
 export function runParallelTasks<T>(taskRunner: ParallelTasksRunner<T>): RunParallelTasksResult<T> {
