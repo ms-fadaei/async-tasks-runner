@@ -7,7 +7,7 @@
 [![Github Actions CI][github-actions-ci-src]][github-actions-ci-href]
 [![License][license-src]][license-href]
 
-> Super tiny (< 1kb gzipped), side-effect free, tree shakable, zero dependencies, and fully typed Tasks Runner. Run your tasks in parallel, serial & pipeline in a more complicated and performant way.
+> tiny (~ 1kb gzipped), side-effect free, tree shakable, zero dependencies, and fully typed Tasks Runner. Run your tasks in parallel, serial & pipeline in a more complicated and performant way.
 
 With this module you can run your tasks in 3 different ways:
 
@@ -17,16 +17,15 @@ With this module you can run your tasks in 3 different ways:
 
 ![Async Tasks Runner](https://user-images.githubusercontent.com/54557683/140879231-30adf612-9149-4a10-af9f-6af094fa9152.jpg)
 
-<br />
+
 
 ⚠️ Attention: This package comes without any polyfills. If you want to support an older environment, please polyfills it depending on what you need.
-* ES2015 const/let
-* ES2015 Classes
-* ES2015 Generator Functions
-* ES2015 Promise
+* ES2015
 * ES2017 async/await
 * ES2020 Promise.allSettled (Just for the ParallelTasksRunner)
-<img width="460" alt="enviroment support" src="https://user-images.githubusercontent.com/54557683/140879289-456a341b-d272-45e8-8a6d-7d6b4ba83bf6.jpg">
+
+<img width="460" alt="environment support" src="https://user-images.githubusercontent.com/54557683/140879289-456a341b-d272-45e8-8a6d-7d6b4ba83bf6.jpg">
+
 
 ## Setup
 
@@ -43,103 +42,87 @@ npm install async-tasks-runner
 2. Use it everywhere you want
 ```js
 // ES Module
-import {ParallelTasksRunner, SerialTasksRunner, PipelineTasksRunner} from "async-tasks-runner"
+import {createParallelTasksRunner, runParallelTasks, getParallelTasks} from "async-tasks-runner"
 
 // CJS
-const {ParallelTasksRunner} = require("async-tasks-runner")
+const {createParallelTasksRunner, runParallelTasks, getParallelTasks} = require("async-tasks-runner")
 ```
 
-## Classes
+## Runners
 
-| Class | Example |
+| Runner | Example |
 | ------ | ------- |
 | ParallelTasksRunner | See [Examples](#parallel-tasks-runner) |
 | SerialTasksRunner | See [Examples](#serial-tasks-runner) |
 | PipelineTasksRunner | See [Examples](#pipeline-tasks-runner) |
 
-## Properties
+## Global Helper Functions
 
-| Property | Description |
-| ------ | ------- |
-| status | current status of the runner. [See Status Section](#status) |
+| Functions | Description| Parameter(s) | Return Value |
+| ------ | ------- | ------ | ------- |
+| pushTasks | push tasks to the runner. [See pushTasks Section](#pushTasks) | taskRunnerObject, tasks[] | number: the new length of tasks |
+| spliceTasks | removing or replacing existing tasks and/or adding new elements in place [See spliceTasks Section](#spliceTasks) | taskRunnerObject, startIndex, deleteCount, newTasks[] | array: list of removed tasks |
+| getTasksRunnerStatus | current status of the runner. [See getTasksRunnerStatus Section](#getTasksRunnerStatus) | taskRunnerObject | string: status |
 
-### status
-All of the runners have 4 different status that represents of runner's status:
+### pushTasks
+With this function, you can push new tasks to the runner (like `Array.prototype.push()`).
+```js
+pushTasks(taskRunnerObject, ...newTasks[]);
+```
+
+### spliceTasks
+With this function, you can change the contents of an array by removing or replacing existing elements and/or adding new elements in place (like `Array.prototype.splice()`).
+```js
+spliceTasks(taskRunnerObject, start, deleteCount, ...newTasks[] );
+```
+
+### getTasksRunnerStatus
+With this function, you can get the current status of the runner.
+```js
+const currentStatus = getTasksRunnerStatus(taskRunnerObject)
+```
+
+This function returns 4 different statuses:
 1. `standby`: The runner is open to adding or removing tasks. This status actually present that the runner is not started yet!
 2. `pending`: Represent that the runner starts pending the tasks and in the meantime, you can't nor add/remove tasks to/from the runner neither reset the runner.
 3. `fulfilled`: Represent that the runner did its job and now you can get the result or reset the runner to add/remove tasks to/from the runner and run them again.
 4. `rejected`: In this status, the runner did its job but with an error in the process, and the whole run is rejected. Like `fulfilled` status, you can reset the runner to add/remove tasks to/from the runner and run them again.
-
-## Methods
-
-| Method | Description | Parameter(s) | Retrun |
-| ------ | ------- | ------- | ------- |
-| add  | add tasks to the runner | ...tasks | number: index of last addaed tasks |
-| remove | remove tasks from the runner | start index, count | array: list of removed tasks |
-| reset | resets the runner to start over | none | this: the class instance |
-| run | starts the process | none | array: list of removed tasks |
-| get | get the promise of the pending/fulfilled/rejected task by index | index of the task | promise: promise of the task |
 
 ## Examples
 
 ### Parallel Tasks Runner
 You can run your tasks in parallel. the result is an array, like the `Promise.allSettled` result.
 
-#### create instance
-You can pass tasks to the constructor directly.
+#### Create
+You can create a parallel task runner object by the calling of `createParallelTaskRunner`. The result will be an object that must be passed as the first argument to any helper functions that you want to use.
 
 ```js
-import {ParallelTasksRunner} from "async-tasks-runner"
-const parallelTasks = new ParallelTasksRunner(...tasks);
+import {createParallelTasksRunner} from "async-tasks-runner"
+const taskRunnerObject = createParallelTasksRunner(...tasks);
 ```
 
 Every task in the `ParallelTasksRunner` must be a function without a parameter and return a promise.
 
 ```js
-function createTasksRunner() {
-    const url = "https://google.com";
+const url = "https://google.com";
 
-    const task1 = () => {
-        return fetch(`${url}/first`);
-    }
-
-    const task2 = () => {
-        return fetch(`${url}/second`);
-    }
-
-    return new SerialTasksRunner(task1, task2);
+const task1 = () => {
+    return fetch(`${url}/first`);
 }
+
+const task2 = () => {
+    return fetch(`${url}/second`);
+}
+
+const taskRunnerObject = createParallelTasksRunner(task1, task2);
 ```
 
-#### status
-Returns status of the runner. [See Status Section](#status)
+#### Run
+Start pending the runner. When it is called, the status changed to `pending` and when it is done, the status changed to `fulfilled`. If you run it again, it's not starting to run again and fulfilled with the previous result unless you reset the runner. This means you can start the runner then do some heavy work and call it again to get the result without getting the process blocked! This method returns a promise that resolves after all of the given promises have either been fulfilled or rejected, with an array of objects that each describes the outcome of each promise.
 
 ```js
-parallelTasks.statue // standby | pending | fulfilled | rejected
-```
-
-#### add task(s)
-Add tasks to the runner. This method adds tasks to the runner when its status is `standby`. This method returns the index of the last added task in the tasks list.
-
-```js
-parallelTasks.add(task1, task2, ...tasks)
-```
-
-#### remove task(s)
-Remove tasks from the runner. This method removes tasks from the runner when its status is `standby`. this method returns the list of removed tasks.
-
-```js
-// remove 3 tasks, started from index 2
-const startIndex = 2;
-const count = 3;
-parallelTasks.remove(startIndex, count)
-```
-
-#### run tasks
-Start pending the runner. When it is called for the first time, the status changed to `pending` and when it is done, the status changed to `fulfilled`. If you run it again, it's not starting to run again and fulfilled with the previous result unless you reset the runner. This means you can start the runner then do some heavy work and call it again to get the result without getting the process blocked! This method returns a promise that resolves after all of the given promises have either been fulfilled or rejected, with an array of objects that each describes the outcome of each promise.
-
-```js
-const result = await parallelTasks.run();
+import {runParallelTasks} from "async-tasks-runner"
+const result = await runParallelTasks(taskRunnerObject);
 
 // [
 //   {status: "fulfilled", value: 33},
@@ -149,175 +132,145 @@ const result = await parallelTasks.run();
 // ]
 ```
 
-#### get specific pending task
-After calling the `run` method (no matter of status is `pending` or `fulfilled` or `rejected`), you can access a specific task with this method. The only parameter of this method is the index of the task. This method returns a Promise that resolves with the task result or is rejected with the current or previous task rejection.
+#### Result of Specific Task
+After running the runner (no matter of status is `pending` or `fulfilled` or `rejected`), you can access a specific task with this method. The only parameter of this method is the index of the task. This method returns a Promise that resolves with the task result or is rejected with the current or previous task rejection.
 
 ```js
-const result = await parallelTasks.get(0);
+import {getParallelTasks} from "async-tasks-runner"
+const result = await getParallelTasks(taskRunnerObject, 0);
 ```
 
-#### reset the runner
-Reset the runner when the pending process is done (`fulfilled` or `rejected`). you can reset the runner to add or remove tasks or run it again.
+#### Clone
+You can clone tasks of your runner and create a new tasks runner.
 
 ```js
-parallelTasks.reset();
+import {createParallelTasksRunner} from "async-tasks-runner"
+const newTaskRunnerObject = createParallelTasksRunner(...taskRunnerObject.tasks);
 ```
 
 ### Serial Tasks Runner
 You can run your tasks in sequence. the result is an array, like the `Promise.allSettled` result.
 
-#### create instance
-You can pass tasks to the constructor directly.
+#### Create
+You can create a serial task runner object by the calling of `createSerialTaskRunner`. The result will be an object that must be passed as the first argument to any helper functions that you want to use.
 
 ```js
-import {SerialTasksRunner} from "async-tasks-runner"
-const serialTasks = new SerialTasksRunner(...tasks);
+import {createSerialTasksRunner} from "async-tasks-runner"
+const taskRunnerObject = createSerialTasksRunner(...tasks);
 ```
 
 Every task in the `SerialTasksRunner` must be a function without a parameter and return a promise.
 
 ```js
-function createTasksRunner() {
-    const url = "https://google.com";
+const url = "https://google.com";
 
-    const task1 = () => {
-        return fetch(`${url}/first`);
-    }
-
-    const task2 = () => {
-        return fetch(`${url}/second`);
-    }
-
-    return new SerialTasksRunner(task1, task2);
+const task1 = () => {
+    return fetch(`${url}/first`);
 }
+
+const task2 = () => {
+    return fetch(`${url}/second`);
+}
+
+const taskRunnerObject = createSerialTasksRunner(task1, task2);
 ```
 
-#### status
-Returns status of the runner. [See Status Section](#status)
+#### Run
+Start pending the runner. When it is called, the status changed to `pending` and when it is done, the status changed to `fulfilled`. If you run it again, it's not starting to run again and fulfilled with the previous result unless you reset the runner. This means you can start the runner then do some heavy work and call it again to get the result without getting the process blocked! This method returns a promise that resolves after all of the given promises have either been fulfilled or rejected, with an array of objects that each describes the outcome of each promise.
 
 ```js
-serialTasks.statue // standby | pending | fulfilled | rejected
-```
-
-#### add task(s)
-Add tasks to the runner. This method adds tasks to the runner when its status is `standby`. This method returns the index of the last added task in the tasks list.
-
-```js
-serialTasks.add(task1, task2, ...tasks)
-```
-
-#### remove task(s)
-Remove tasks from the runner. This method removes tasks from the runner when its status is `standby`. this method returns the list of removed tasks.
-
-```js
-// remove 3 tasks, started from index 2
-const startIndex = 2;
-const count = 3;
-serialTasks.remove(startIndex, count)
-```
-
-#### run tasks
-Start pending the runner. When it is called for the first time, the status changed to `pending` and when it is done, the status changed to `fulfilled` if all tasks run successfully or `rejected` if one of the tasks gets failed. If you run it again, it's not starting to run again and `fulfilled` or `rejected` with the previous result unless you reset the runner. This means you can start the runner then do some heavy work and call it again to get the result without getting the process blocked! This method always returns a promise that resolves with the final task result or rejects with an error on the process. The `run` method in the `PipelineTaskRunner` needs an argument as the initial argument of the first task.
-
-```js
-const result = await serialTasks.run();
+import {runSerialTasks} from "async-tasks-runner"
+const result = await runSerialTasks(taskRunnerObject);
 
 // [
 //   {status: "fulfilled", value: 33},
 //   {status: "fulfilled", value: 66},
 //   {status: "fulfilled", value: 99},
+//   {status: "rejected",  reason: Error: an error}
 // ]
 ```
 
-#### get specific pending task
-After calling the `run` method (no matter of status is `pending` or `fulfilled` or `rejected`), you can access a specific task with this method. The only parameter of this method is the index of the task. This method returns a Promise that resolves with the task result or is rejected with the current or previous task rejection.
+#### Result of Specific Task
+After running the runner (no matter of status is `pending` or `fulfilled` or `rejected`), you can access a specific task with this method. The only parameter of this method is the index of the task. This method returns a Promise that resolves with the task result or is rejected with the current or previous task rejection.
 
 ```js
-const result = await serialTasks.get(0);
+import {getSerialTasks} from "async-tasks-runner"
+const result = await getSerialTasks(taskRunnerObject, 0);
 ```
 
-#### reset the runner
-Reset the runner when the pending process is done (`fulfilled` or `rejected`). you can reset the runner to add or remove tasks or run it again.
+#### Clone
+You can clone tasks of your runner and create a new tasks runner.
 
 ```js
-serialTasks.reset();
+import {createSerialTasksRunner} from "async-tasks-runner"
+const newTaskRunnerObject = createSerialTasksRunner(...taskRunnerObject.tasks);
 ```
 
 ### Pipeline Tasks Runner
 You can run your tasks in sequence. The result of the currently pending task will be the argument of the next task.
 
-#### create instance
-You can pass tasks to the constructor directly.
+#### Create
+You can create a serial task runner object by the calling of `createPipelineTaskRunner`. The result will be an object that must be passed as the first argument to any helper functions that you want to use.
 
 ```js
-import {PipelineTasksRunner} from "async-tasks-runner"
-const pipelineTasks = new PipelineTasksRunner(...tasks);
+import {createPipelineTasksRunner} from "async-tasks-runner"
+const taskRunnerObject = createPipelineTasksRunner(...tasks);
 ```
 
 Every task in the `PipelineTasksRunner` must be a function that returns a promise. This function can accept one parameter that will be filled with the previous fulfilled task result.
 
 ```js
-function createTasksRunner() {
-    const url = "https://google.com";
+const url = "https://google.com";
 
-    const task1 = (code) => {
-        return fetch(`${url}/${code}`);
-    }
-
-    const task2 = (code) => {
-        return fetch(`${url}/${code}`);
-    }
-
-    return new PipelineTasksRunner(task1, task2);
+const task1 = (code) => {
+    return fetch(`${url}/${code}`);
 }
+
+const task2 = (data) => {
+    return fetch(data.url);
+}
+
+const taskRunnerObject = createPipelineTasksRunner(task1, task2);
 ```
 
-#### status
-Returns status of the runner. [See Status Section](#status)
+#### Run
+With this method, you can start pending the tasks. When it is called, the status changed to `pending` and when it is done, the status changed to `fulfilled` if all tasks run successfully or `rejected` if one of the tasks in the list get failed (and the next tasks don't get run). If you run it again, it's not starting to run again and `fulfilled` or `rejected` with the previous result unless you reset the runner. This means you can start the runner then do some heavy work and call it again to get the result without getting the process blocked! This method always returns a promise that resolves with the final task result or rejects with an error. The `runPipelineTasks` function needs an extra argument for the parameter of the first task function (initial parameter).
 
 ```js
-pipelineTasks.statue // standby | pending | fulfilled | rejected
+import {runPipelineTasks} from "async-tasks-runner"
+const result = await runPipelineTasks(taskRunnerObject, firstArgument);
+
+// [
+//   {status: "fulfilled", value: 33},
+//   {status: "fulfilled", value: 66},
+//   {status: "fulfilled", value: 99},
+//   {status: "rejected",  reason: Error: an error}
+// ]
 ```
 
-#### add task(s)
-Add tasks to the runner. This method adds tasks to the runner when its status is `standby`. This method returns the index of the last added task in the tasks list.
+#### Result of Specific Task
+After running the runner (no matter of status is `pending` or `fulfilled` or `rejected`), you can access a specific task with this method. The only parameter of this method is an index of the task. This method returns a Promise that resolves with the task result or is rejected with the current or previous task failure error.
 
 ```js
-pipelineTasks.add(task1, task2, ...tasks)
+import {getPipelineTasks} from "async-tasks-runner"
+const result = await getPipelineTasks(taskRunnerObject, 0);
 ```
 
-#### remove task(s)
-Remove tasks from the runner. This method removes tasks from the runner when its status is `standby`. this method returns the list of removed tasks.
+#### Clone
+You can clone tasks of your runner and create a new tasks runner.
 
 ```js
-// remove 3 tasks, started from index 2
-const startIndex = 2;
-const count = 3;
-pipelineTasks.remove(startIndex, count)
+import {createPipelineTasksRunner} from "async-tasks-runner"
+const newTaskRunnerObject = createPipelineTasksRunner(...taskRunnerObject.tasks);
 ```
 
-#### run tasks
-With this method, you can start pending the tasks. When it is called for the first time, the status changed to `pending` and when it is done, the status changed to `fulfilled` if all tasks run successfully or `rejected` if one of the tasks in the list get failed (and the next tasks don't get run). If you run it again, it's not starting to run again and `fulfilled` or `rejected` with the previous result unless you reset the runner. This means you can start the runner then do some heavy work and call it again to get the result without getting the process blocked! This method always returns a promise that resolves with the final task result or rejects with an error. The `run` method in the `PipelineTaskRunner` needs an argument for the parameter of the first task function (initial parameter).
+## Extra Helper Functions
 
-```js
-const result = await pipelineTasks.run(firstTaskParameterValue);
-
-// result: 99
-```
-
-#### get specific pending task
-After calling the `run` method (no matter of status is `pending` or `fulfilled` or `rejected`), you can access a specific task with this method. The only parameter of this method is an index of the task. This method returns a Promise that resolves with the task result or is rejected with the current or previous task failure error.
-
-```js
-const result = await pipelineTasks.get(0);
-```
-
-#### reset the runner
-Reset the runner when the pending process is done (`fulfilled` or `rejected`). you can reset the runner to add or remove tasks or run it again.
-
-```js
-pipelineTasks.reset();
-```
+| Functions | Description| Parameter(s) | Return Value |
+| ------ | ------- | ------ | ------- |
+| createTimeoutResolve | create a delay with resolve | timeout: number, response: T, cancelToken?: Promise | promise |
+| createTimeoutReject | create a delay with reject | timeout: number, response: T, cancelToken?: Promise | promise |
+| createTaskWithTimeout | create a task with timeout | task: Task, timeout: number | Task
 
 ## Contribution
 
