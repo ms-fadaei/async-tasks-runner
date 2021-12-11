@@ -11,8 +11,7 @@ All notable changes to this project will be documented in this file. See [standa
 * You need to use new `create*TasksRunner()` exports
 * you need to use `pending` instead of `running`
 * `resetTasks` removed. you can use `runner = create*TasksRunner(...runner.tasks)` instead
-* use `ParallelTask` & `SerialTask`type instead of `NormalTask`
-* use `NormalTask` type instead of `Task` type for `parallel` and `serial` runners
+* use `ParallelTask` & `SerialTask`type instead of `Task` type for `parallel` and `serial` runners
 
 
 ### Features
