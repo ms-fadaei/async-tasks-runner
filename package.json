@@ -67,7 +67,7 @@
     "jiti": "latest",
     "lint-staged": "12.3.1",
     "mocha": "9.2.0",
-    "prettier": "2.5.1",
+    "prettier": "2.8.8",
     "standard-version": "latest",
     "typescript": "latest",
     "unbuild": "latest"
